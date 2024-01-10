@@ -10,14 +10,31 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Repository interface defines the methods for data access.
-type Repository interface {
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error)
-}
-
 // MongoDBRepository is the MongoDB implementation of the Repository interface.
 type MongoDBRepository struct {
 	Collection *mongo.Collection
+}
+
+func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.Exhibition, error) {
+	// Define the aggregation pipeline
+	pipeline := primitive.A{
+		bson.M{"$match": bson.M{}}, // You can add match conditions here if needed
+	}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of documents
+	var exhibitions []model.Exhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+
+	return exhibitions, nil
 }
 
 func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error) {

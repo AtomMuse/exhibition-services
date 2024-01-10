@@ -6,14 +6,13 @@ import (
 	"context"
 )
 
-// UseCase represents the business logic.
-type UseCase interface {
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error)
-}
-
 // ExhibitionUseCase is the implementation of the UseCase interface.
 type ExhibitionUseCase struct {
-	Repository exhibirepo.Repository
+	Repository *exhibirepo.MongoDBRepository
+}
+
+func (uc *ExhibitionUseCase) GetAllExhibitions(ctx context.Context) ([]model.Exhibition, error) {
+	return uc.Repository.GetAllExhibitions(ctx)
 }
 
 func (uc *ExhibitionUseCase) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error) {

@@ -40,6 +40,7 @@ func main() {
 	handler := &exhibihandler.Handler{UseCase: useCase}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/exhibitions", handler.GetAllExhibitions).Methods("GET")
 	r.HandleFunc("/exhibition/{id}", handler.GetExhibitionHandler).Methods("GET")
 
 	http.Handle("/", r)
