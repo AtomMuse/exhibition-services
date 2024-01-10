@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  backendend:
+    container_name: backend
+    image: backend_img
+    build:
+      context: ./
+      dockerfile: ./dockerfile/Dockerfile
+    ports:
+      - '8080:8080'
+    networks:
+      - atommuse-network
+
+networks:
+  atommuse-network:
+    driver: bridge
