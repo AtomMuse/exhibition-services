@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -15,8 +16,15 @@ import (
 )
 
 func main() {
-	clientOptions := options.Client().ApplyURI("mongodb+srv://admin:root123456@cluster0.eshkyjb.mongodb.net/")
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	// Load MongoDB connection string from environment variable
+	mongoURI := "mongodb+srv://admin:root123456@cluster0.eshkyjb.mongodb.net/"
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+		return
+	}
+
+	// Connect to MongoDB
+	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
 		return
@@ -50,4 +58,27 @@ func main() {
 
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func connectToMongoDB(uri string) (*mongo.Client, error) {
+	// URL encode the MongoDB connection string
+	encodedURI := url.QueryEscape(uri)
+
+	clientOptions := options.Client().ApplyURI(encodedURI)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the connection
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		client.Disconnect(context.Background())
+		return nil, err
+	}
+
+	log.Printf("Connected to MongoDB at %s\n", uri)
+	return client, nil
 }
