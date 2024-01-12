@@ -1,16 +1,18 @@
 package main
 
 import (
-	"atommuse/backend/exhibition-service/handler/exhibihandler"
-	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
-	"atommuse/backend/exhibition-service/pkg/service"
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/your-username/your-project/exhibihandler"
+	"github.com/your-username/your-project/exhibirepo"
+	"github.com/your-username/your-project/service"
 )
 
 func main() {
@@ -27,7 +29,9 @@ func main() {
 	}()
 
 	// Check if the connection to MongoDB is successful
-	err = client.Ping(context.Background(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal("Error pinging MongoDB:", err)
 		return
