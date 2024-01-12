@@ -59,10 +59,14 @@ func main() {
 	r.HandleFunc("/exhibitions", handler.GetAllExhibitions).Methods("GET")
 	r.HandleFunc("/exhibition/{id}", handler.GetExhibitionHandler).Methods("GET")
 
-	http.Handle("/", r)
+	// Update to bind to all available interfaces
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
 
 	log.Println("Server started on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(server.ListenAndServe())
 }
 
 func connectToMongoDB(uri string) (*mongo.Client, error) {
