@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  backendend:
+  backend:
     container_name: backend
     image: backend_img
     build:
