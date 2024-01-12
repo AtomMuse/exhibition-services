@@ -5,29 +5,35 @@ import (
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"atommuse/backend/exhibition-service/pkg/service"
 	"context"
+	"crypto/tls"
 	"log"
 	"net/http"
-	"net/url"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file:", err)
+	}
+
 	// Load MongoDB connection string from environment variable
-	mongoURI := "mongodb+srv://admin:root123456@cluster0.eshkyjb.mongodb.net/"
+	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set.")
-		return
 	}
 
 	// Connect to MongoDB
 	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
-		return
 	}
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
@@ -41,7 +47,6 @@ func main() {
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal("Error pinging MongoDB:", err)
-		return
 	}
 
 	dbCollection := client.Database("atommuse").Collection("exhibition")
@@ -61,10 +66,9 @@ func main() {
 }
 
 func connectToMongoDB(uri string) (*mongo.Client, error) {
-	// URL encode the MongoDB connection string
-	encodedURI := url.QueryEscape(uri)
+	clientOptions := options.Client().ApplyURI(uri)
+	clientOptions.SetTLSConfig(&tls.Config{}) // Add an empty TLS config
 
-	clientOptions := options.Client().ApplyURI(encodedURI)
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return nil, err
@@ -75,7 +79,8 @@ func connectToMongoDB(uri string) (*mongo.Client, error) {
 	defer cancel()
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		client.Disconnect(context.Background())
+		// Log the error and return it without disconnecting
+		log.Printf("Error pinging MongoDB: %v\n", err)
 		return nil, err
 	}
 
