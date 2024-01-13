@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -55,14 +56,24 @@ func main() {
 	useCase := &service.ExhibitionUseCase{Repository: repo}
 	handler := &exhibihandler.Handler{UseCase: useCase}
 
+	// Create a new router with CORS middleware
 	r := mux.NewRouter()
+
+	// CORS middleware configuration
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	// Use CORS middleware with your router
+	corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)(r)
+
 	r.HandleFunc("/exhibitions", handler.GetAllExhibitions).Methods("GET")
 	r.HandleFunc("/exhibition/{id}", handler.GetExhibitionHandler).Methods("GET")
 
 	// Update to bind to all available interfaces
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: r,
+		Handler: corsHandler, // Use the router with CORS middleware
 	}
 
 	log.Println("Server started on :8080")
