@@ -19,20 +19,16 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env file
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)
 	}
 
-	// Load MongoDB connection string from environment variable
 	mongoURI := os.Getenv("MONGO_URI")
-
 	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set.")
 	}
-	log.Println(mongoURI)
-	// Connect to MongoDB
+	log.Println("MongoURI:", mongoURI)
+
 	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
@@ -43,38 +39,24 @@ func main() {
 		}
 	}()
 
-	// Check if the connection to MongoDB is successful
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err = client.Ping(ctx, nil)
-	if err != nil {
+	if err := checkMongoDBConnection(client); err != nil {
 		log.Fatal("Error pinging MongoDB:", err)
 	}
 
 	dbCollection := client.Database("atommuse").Collection("exhibition")
-
 	repo := &exhibirepo.MongoDBRepository{Collection: dbCollection}
 	useCase := &service.ExhibitionUseCase{Repository: repo}
 	handler := &exhibihandler.Handler{UseCase: useCase}
 
-	// Create a new router with CORS middleware
 	r := mux.NewRouter()
-
-	// CORS middleware configuration
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-
-	// Use CORS middleware with your router
-	corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)(r)
+	corsHandler := setupCORS(r)
 
 	r.HandleFunc("/exhibitions", handler.GetAllExhibitions).Methods("GET")
 	r.HandleFunc("/exhibition/{id}", handler.GetExhibitionHandler).Methods("GET")
 
-	// Update to bind to all available interfaces
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: corsHandler, // Use the router with CORS middleware
+		Handler: corsHandler,
 	}
 
 	log.Println("Server started on :8080")
@@ -82,24 +64,33 @@ func main() {
 }
 
 func connectToMongoDB(uri string) (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI(uri)
-	clientOptions.SetTLSConfig(&tls.Config{}) // Add an empty TLS config
-
+	clientOptions := options.Client().ApplyURI(uri).SetTLSConfig(&tls.Config{})
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	// Check the connection
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		// Log the error and return it without disconnecting
-		log.Printf("Error pinging MongoDB: %v\n", err)
+
+	if err := client.Ping(ctx, nil); err != nil {
 		return nil, err
 	}
 
 	log.Printf("Connected to MongoDB at %s\n", uri)
 	return client, nil
+}
+
+func checkMongoDBConnection(client *mongo.Client) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	return client.Ping(ctx, nil)
+}
+
+func setupCORS(r *mux.Router) http.Handler {
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	return handlers.CORS(headersOk, originsOk, methodsOk)(r)
 }
