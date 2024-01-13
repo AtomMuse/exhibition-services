@@ -27,10 +27,11 @@ func main() {
 
 	// Load MongoDB connection string from environment variable
 	mongoURI := os.Getenv("MONGO_URI")
+
 	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set.")
 	}
-
+	log.Println(mongoURI)
 	// Connect to MongoDB
 	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
