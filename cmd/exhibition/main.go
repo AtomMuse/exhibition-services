@@ -5,7 +5,6 @@ import (
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"atommuse/backend/exhibition-service/pkg/service"
 	"context"
-	"crypto/tls"
 	"log"
 	"net/http"
 	"os"
@@ -64,7 +63,7 @@ func main() {
 }
 
 func connectToMongoDB(uri string) (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI(uri).SetTLSConfig(&tls.Config{})
+	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return nil, err
