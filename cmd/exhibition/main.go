@@ -6,17 +6,20 @@ import (
 	"atommuse/backend/exhibition-service/pkg/service"
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// @title Exhibition Service API
+// @version v0
+// @description Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+// @schemes https http
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)
@@ -38,28 +41,31 @@ func main() {
 		}
 	}()
 
-	if err := checkMongoDBConnection(client); err != nil {
-		log.Fatal("Error pinging MongoDB:", err)
-	}
-
 	dbCollection := client.Database("atommuse").Collection("exhibition")
 	repo := &exhibirepo.MongoDBRepository{Collection: dbCollection}
 	useCase := &service.ExhibitionUseCase{Repository: repo}
 	handler := &exhibihandler.Handler{UseCase: useCase}
 
-	r := mux.NewRouter()
-	corsHandler := setupCORS(r)
+	router := gin.Default()
 
-	r.HandleFunc("/exhibitions", handler.GetAllExhibitions).Methods("GET")
-	r.HandleFunc("/exhibition/{id}", handler.GetExhibitionHandler).Methods("GET")
+	// Swagger documentation route
+	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	server := &http.Server{
-		Addr:    ":8080",
-		Handler: corsHandler,
+	api := router.Group("/api")
+	{
+		api.GET("/exhibitions", func(c *gin.Context) {
+			handler.GetAllExhibitions(c.Writer, c.Request)
+		})
+		api.GET("/exhibitions/:id", func(c *gin.Context) {
+			handler.GetExhibitionByID(c)
+		})
+		api.POST("/exhibitions", func(c *gin.Context) {
+			handler.CreateExhibition(c)
+		})
 	}
 
 	log.Println("Server started on :8080")
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(router.Run(":8080"))
 }
 
 func connectToMongoDB(uri string) (*mongo.Client, error) {
@@ -78,18 +84,4 @@ func connectToMongoDB(uri string) (*mongo.Client, error) {
 
 	log.Printf("Connected to MongoDB at %s\n", uri)
 	return client, nil
-}
-
-func checkMongoDBConnection(client *mongo.Client) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	return client.Ping(ctx, nil)
-}
-
-func setupCORS(r *mux.Router) http.Handler {
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-	return handlers.CORS(headersOk, originsOk, methodsOk)(r)
 }

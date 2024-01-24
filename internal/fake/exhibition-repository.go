@@ -7,6 +7,6 @@ import (
 
 // Repository interface defines the methods for data access.
 type Repository interface {
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error)
-	GetAllExhibitions(ctx context.Context) ([]model.Exhibition, error)
+	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 }

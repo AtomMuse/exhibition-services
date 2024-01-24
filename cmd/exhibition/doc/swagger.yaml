@@ -1,0 +1,125 @@
+info:
+  contact: {}
+  description: Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง
+    แก้ไข ลบ exhibition
+  title: Exhibition Service API
+  version: v0
+paths:
+  /api/exhibitions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new exhibition
+      parameters:
+      - description: Exhibition data to create
+        in: body
+        name: requestExhibition
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Permission denied
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new exhibition
+      tags:
+      - Exhibitions
+  /exhibitions:
+    get:
+      description: Get a list of all exhibitions
+      operationId: GetAllExhibitions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Permission denied
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get all exhibitions
+      tags:
+      - Exhibitions
+  /exhibitions/{id}:
+    get:
+      description: Get exhibition details by ID
+      operationId: GetExhibitionByID
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Permission denied
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get exhibition by ID
+      tags:
+      - Exhibitions
+schemes:
+- https
+- http
+swagger: "2.0"

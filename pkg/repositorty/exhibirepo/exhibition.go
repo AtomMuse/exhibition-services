@@ -15,7 +15,7 @@ type MongoDBRepository struct {
 	Collection *mongo.Collection
 }
 
-func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.Exhibition, error) {
+func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
 	// Define the aggregation pipeline
 	pipeline := primitive.A{
 		bson.M{"$match": bson.M{}}, // You can add match conditions here if needed
@@ -29,7 +29,7 @@ func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.Exhi
 	defer cursor.Close(ctx)
 
 	// Decode the results into a slice of documents
-	var exhibitions []model.Exhibition
+	var exhibitions []model.ResponseExhibition
 	if err := cursor.All(ctx, &exhibitions); err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.Exhi
 	return exhibitions, nil
 }
 
-func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.Exhibition, error) {
+func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -63,10 +63,25 @@ func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID 
 	}
 
 	// Decode the main document
-	var exhibition model.Exhibition
+	var exhibition model.ResponseExhibition
 	if err := cursor.Decode(&exhibition); err != nil {
 		return nil, err
 	}
 
 	return &exhibition, nil
+}
+
+func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *model.ResponseExhibition) (*primitive.ObjectID, error) {
+	result, err := r.Collection.InsertOne(ctx, exhibition)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract the generated ObjectID from the result
+	objectID, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, err
+	}
+
+	return &objectID, nil
 }
