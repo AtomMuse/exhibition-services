@@ -1,7 +1,6 @@
 package exhibihandler
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -20,18 +19,16 @@ import (
 // @Failure 403 {string} string "Permission denied"
 // @Failure 500 {string} string "Internal server error"
 // @Router /exhibitions [get]
-func (h *Handler) GetAllExhibitions(w http.ResponseWriter, r *http.Request) {
-	exhibitions, err := h.UseCase.GetAllExhibitions(r.Context())
+func (h *Handler) GetAllExhibitions(c *gin.Context) {
+	exhibitions, err := h.UseCase.GetAllExhibitions(c.Request.Context())
 	if err != nil {
 		log.Printf("Error retrieving exhibitions : %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
-	// Respond with the list of exhibitions
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(exhibitions)
+	// Return the exhibition details
+	c.JSON(http.StatusOK, exhibitions)
 }
 
 // GetExhibition godoc
