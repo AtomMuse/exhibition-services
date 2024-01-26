@@ -7,18 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetAllExhibitions godoc
+// GetExhibitions godoc
 // @Summary Get all exhibitions
 // @Description Get a list of all exhibitions
 // @Tags Exhibitions
 // @ID GetAllExhibitions
 // @Produce json
 // @Success 200 {array} string "Success"
-// @Failure 400 {string} string "Invalid request body"
-// @Failure 401 {string} string "Unauthorized"
-// @Failure 403 {string} string "Permission denied"
-// @Failure 500 {string} string "Internal server error"
-// @Router /exhibitions [get]
+// @Failure 400 {object} string "Invalid request body"
+// @Failure 401 {object} string "Unauthorized"
+// @Failure 403 {object} string "Permission denied"
+// @Failure 500 {object} string "Internal server error"
+// @Router /api/exhibitions [get]
 func (h *Handler) GetAllExhibitions(c *gin.Context) {
 	exhibitions, err := h.UseCase.GetAllExhibitions(c.Request.Context())
 	if err != nil {
@@ -39,12 +39,12 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Exhibition ID"
 // @Success 200 {object} object "Success"
-// @Failure 400 {string} string "Invalid request body"
-// @Failure 401 {string} string "Unauthorized"
-// @Failure 403 {string} string "Permission denied"
-// @Failure 404 {string} string "Not found"
-// @Failure 500 {string} string "Internal server error"
-// @Router /exhibitions/{id} [get]
+// @Failure 400 {object} string "Invalid request body"
+// @Failure 401 {object} string "Unauthorized"
+// @Failure 403 {object} string "Permission denied"
+// @Failure 404 {object} string "Not found"
+// @Failure 500 {object} string "Internal server error"
+// @Router /api/exhibitions/{id} [get]
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	exhibitionID := c.Param("id")
 

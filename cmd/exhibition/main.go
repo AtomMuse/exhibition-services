@@ -9,8 +9,12 @@ import (
 	"os"
 	"time"
 
+	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -46,10 +50,10 @@ func main() {
 	useCase := &service.ExhibitionUseCase{Repository: repo}
 	handler := &exhibihandler.Handler{UseCase: useCase}
 
-	router := gin.Default()
-
 	// Swagger documentation route
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router := gin.Default()
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	api := router.Group("/api")
 	{
@@ -61,6 +65,9 @@ func main() {
 		})
 		api.POST("/exhibitions", func(c *gin.Context) {
 			handler.CreateExhibition(c)
+		})
+		api.DELETE("/exhibitions/:id", func(c *gin.Context) {
+			handler.DeleteExhibition(c)
 		})
 	}
 

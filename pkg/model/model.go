@@ -6,16 +6,16 @@ import (
 
 // Exhibition represents the structure of the exhibition data.
 type ResponseExhibition struct {
-	ID                    primitive.ObjectID  `bson:"_id,omitempty" json:"_id,omitempty" validate:"required"`
-	ExhibitionName        string              `bson:"exhibitionName,omitempty" json:"exhibitionName" validate:"required"`
+	ID                    primitive.ObjectID  `bson:"_id" json:"_id" validate:"required"`
+	ExhibitionName        string              `bson:"exhibitionName" json:"exhibitionName" validate:"required"`
 	ExhibitionDescription string              `bson:"exhibitionDescription,omitempty" json:"exhibitionDescription,omitempty"`
 	ThumbnailImg          string              `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
-	StartDate             string              `bson:"startDate,omitempty" json:"startDate,omitempty"`
-	EndDate               string              `bson:"endDate,omitempty" json:"endDate,omitempty"`
+	StartDate             string              `bson:"startDate" json:"startDate"`
+	EndDate               string              `bson:"endDate" json:"endDate"`
 	IsPublic              bool                `bson:"isPublic,omitempty" json:"isPublic,omitempty"`
 	ExhibitionCategories  []string            `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
 	ExhibitionTags        []string            `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
-	UserID                UserID              `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
+	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
 	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty"`
 	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" validate:"dive"`
 }
@@ -23,6 +23,21 @@ type ResponseExhibition struct {
 // RequestGetExhibition represents the structure of the request to get an exhibition.
 type RequestGetExhibition struct {
 	ID primitive.ObjectID `json:"-" validate:"required,primitive_object"`
+}
+
+// RequestCreateExhibition represents the structure of the request to create an exhibition.
+type RequestCreateExhibition struct {
+	ExhibitionName        string              `bson:"exhibitionName" json:"exhibitionName" validate:"required"`
+	ExhibitionDescription string              `bson:"exhibitionDescription,omitempty" json:"exhibitionDescription,omitempty"`
+	ThumbnailImg          string              `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
+	StartDate             string              `bson:"startDate" json:"startDate" validate:"required,customDate"`
+	EndDate               string              `bson:"endDate" json:"endDate" validate:"required,customDate,gtfield=StartDate"`
+	IsPublic              bool                `bson:"isPublic" json:"isPublic"`
+	ExhibitionCategories  []string            `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
+	ExhibitionTags        []string            `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
+	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
+	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required"`
+	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" validate:"dive"`
 }
 
 // UserID represents user identification data.

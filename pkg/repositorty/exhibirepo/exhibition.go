@@ -71,7 +71,7 @@ func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID 
 	return &exhibition, nil
 }
 
-func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *model.ResponseExhibition) (*primitive.ObjectID, error) {
+func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
 	result, err := r.Collection.InsertOne(ctx, exhibition)
 	if err != nil {
 		return nil, err
@@ -84,4 +84,48 @@ func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *mo
 	}
 
 	return &objectID, nil
+}
+
+func (r *MongoDBRepository) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+
+	// Define the match stage for the aggregation pipeline
+	matchStage := bson.M{"$match": bson.M{"_id": objectID}}
+
+	// Aggregate pipeline
+	pipeline := []bson.M{matchStage}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close(ctx)
+
+	// Check if any result is found
+	if !cursor.Next(ctx) {
+		return fmt.Errorf("exhibition not found for ID %s", exhibitionID)
+	}
+
+	// Decode the main document (assuming ResponseExhibition is the type of your MongoDB documents)
+	var exhibition model.ResponseExhibition
+	if err := cursor.Decode(&exhibition); err != nil {
+		return err
+	}
+
+	// Perform the deletion
+	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		return err
+	}
+
+	if deleteResult.DeletedCount == 0 {
+		return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
+	}
+
+	return nil
 }

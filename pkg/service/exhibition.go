@@ -21,6 +21,10 @@ func (uc *ExhibitionUseCase) GetExhibitionByID(ctx context.Context, exhibitionID
 	return uc.Repository.GetExhibitionByID(ctx, exhibitionID)
 }
 
-func (uc *ExhibitionUseCase) CreateExhibition(ctx context.Context, exhibition *model.ResponseExhibition) (*primitive.ObjectID, error) {
+func (uc *ExhibitionUseCase) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
 	return uc.Repository.CreateExhibition(ctx, exhibition)
+}
+
+func (uc *ExhibitionUseCase) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+	return uc.Repository.DeleteExhibition(ctx, exhibitionID)
 }
