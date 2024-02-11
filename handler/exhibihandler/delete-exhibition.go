@@ -26,7 +26,7 @@ import (
 func (h *Handler) DeleteExhibition(c *gin.Context) {
 	exhibitionID := c.Param("id")
 
-	err := h.UseCase.DeleteExhibition(c.Request.Context(), exhibitionID)
+	err := h.Service.DeleteExhibition(c.Request.Context(), exhibitionID)
 	if err != nil {
 		log.Printf("Error deleting exhibition %s: %v", exhibitionID, err)
 

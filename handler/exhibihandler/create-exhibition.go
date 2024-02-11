@@ -57,7 +57,7 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	}
 
 	// Call use case to create exhibition
-	objectID, err := h.UseCase.CreateExhibition(c.Request.Context(), &requestExhibition)
+	objectID, err := h.Service.CreateExhibition(c.Request.Context(), &requestExhibition)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create exhibition"})
 		return

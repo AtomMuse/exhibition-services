@@ -20,7 +20,7 @@ import (
 // @Failure 500 {object} string "Internal server error"
 // @Router /api/exhibitions [get]
 func (h *Handler) GetAllExhibitions(c *gin.Context) {
-	exhibitions, err := h.UseCase.GetAllExhibitions(c.Request.Context())
+	exhibitions, err := h.Service.GetAllExhibitions(c.Request.Context())
 	if err != nil {
 		log.Printf("Error retrieving exhibitions : %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -48,7 +48,7 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	exhibitionID := c.Param("id")
 
-	exhibition, err := h.UseCase.GetExhibitionByID(c.Request.Context(), exhibitionID)
+	exhibition, err := h.Service.GetExhibitionByID(c.Request.Context(), exhibitionID)
 	if err != nil {
 		log.Printf("Error retrieving exhibition %s: %v", exhibitionID, err)
 

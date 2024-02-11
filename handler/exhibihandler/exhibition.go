@@ -6,5 +6,5 @@ import (
 
 // Handler is responsible for handling HTTP requests.
 type Handler struct {
-	UseCase *service.ExhibitionUseCase
+	Service *service.ExhibitionServices
 }

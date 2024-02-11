@@ -47,8 +47,8 @@ func main() {
 
 	dbCollection := client.Database("atommuse").Collection("exhibition")
 	repo := &exhibirepo.MongoDBRepository{Collection: dbCollection}
-	useCase := &service.ExhibitionUseCase{Repository: repo}
-	handler := &exhibihandler.Handler{UseCase: useCase}
+	service := &service.ExhibitionServices{Repository: repo}
+	handler := &exhibihandler.Handler{Service: service}
 
 	// Swagger documentation route
 	router := gin.Default()
