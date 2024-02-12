@@ -18,7 +18,7 @@ FROM alpine:3.14
 WORKDIR /app
 
 # Copy the built executable from the builder stage
-COPY --from=builder /app/main .
+COPY --from=builder /my-exhibition-app .
 
 # Copy the .env file
 COPY .env .
@@ -27,4 +27,4 @@ COPY .env .
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./main"]
+CMD ["./my-exhibition-app"]
