@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 COPY . .
 
 # Build the Go application
-RUN go build -o main .
+RUN go build -o /my-exhibition-app ./cmd/exhibition
 
 # Start a new stage for a small image
 FROM alpine:3.14
