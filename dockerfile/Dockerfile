@@ -1,26 +1,30 @@
-# syntax=docker/dockerfile:1
+# Use the official Golang image as a base image
+FROM golang:1.19-alpine AS builder
 
-FROM golang:1.19 AS builder
-
-# Set destination for COPY
+# Set the working directory inside the container
 WORKDIR /app
 
-# Download Go modules
+# Copy the Go modules and the Go files into the container
 COPY go.mod go.sum ./
-RUN go mod download
-COPY .env /app/.env
-
-# Copy the source code
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /my-exhibition-app ./cmd/exhibition
+# Build the Go application
+RUN go build -o main .
 
-FROM node:16-alpine
+# Start a new stage for a small image
+FROM alpine:3.14
 
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the built executable from the builder stage
+COPY --from=builder /app/main .
+
+# Copy the .env file
+COPY .env .
+
+# Expose the port the application runs on
 EXPOSE 8080
 
-# Copy the binary from the builder stage
-COPY --from=builder /my-exhibition-app /my-exhibition-app
-
-# Run
-CMD ["/my-exhibition-app"]
+# Command to run the executable
+CMD ["./main"]
