@@ -51,12 +51,13 @@ func main() {
 	service := &service.ExhibitionServices{Repository: repo}
 	handler := &exhibihandler.Handler{Service: service}
 
-	// Swagger documentation route
-	router := gin.Default()
-
 	// Add CORS middleware
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
+
+	// Swagger documentation route
+	router := gin.Default()
+	router.Use(cors.New(config))
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

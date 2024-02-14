@@ -44,7 +44,7 @@ paths:
       parameters:
       - description: Exhibition data to create
         in: body
-        name: template
+        name: requestExhibition
         required: true
         schema:
           type: string
