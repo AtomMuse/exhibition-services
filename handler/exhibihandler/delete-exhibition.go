@@ -40,5 +40,5 @@ func (h *Handler) DeleteExhibition(c *gin.Context) {
 	}
 
 	// Return a successful response with no content (HTTP 204 No Content)
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, "Delete Exhibition Success")
 }
