@@ -11,6 +11,7 @@ import (
 
 	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
@@ -52,6 +53,11 @@ func main() {
 
 	// Swagger documentation route
 	router := gin.Default()
+
+	// Add CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
