@@ -73,7 +73,7 @@
                 "parameters": [
                     {
                         "description": "Exhibition data to create",
-                        "name": "requestExhibition",
+                        "name": "template",
                         "in": "body",
                         "required": true,
                         "schema": {
