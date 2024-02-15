@@ -53,7 +53,7 @@ func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID 
 	// Execute the aggregation
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("aggregation error: %v", err)
 	}
 	defer cursor.Close(ctx)
 
@@ -65,7 +65,7 @@ func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID 
 	// Decode the main document
 	var exhibition model.ResponseExhibition
 	if err := cursor.Decode(&exhibition); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decoding error: %v", err)
 	}
 
 	return &exhibition, nil
