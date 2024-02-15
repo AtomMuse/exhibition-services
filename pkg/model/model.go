@@ -64,6 +64,8 @@ type LeftColumn struct {
 	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
 	Image            string `bson:"image,omitempty" json:"image,omitempty" validate:"omitempty,url"`
 	ImageDescription string `bson:"imageDescription,omitempty" json:"imageDescription,omitempty"`
+	Title            string `bson:"title,omitempty" json:"title,omitempty"`
+	Text             string `bson:"text,omitempty" json:"text`
 }
 
 // RightColumn represents the structure of the right column in an exhibition section.
@@ -71,5 +73,6 @@ type RightColumn struct {
 	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
 	Image            string `bson:"image,omitempty" json:"image,omitempty" validate:"omitempty,url"`
 	ImageDescription string `bson:"imageDescription,omitempty" json:"imageDescription,omitempty"`
-	Title            string `bson:"title,omitempty" json:"title,omitempty" validate:"required"`
+	Title            string `bson:"title,omitempty" json:"title,omitempty"`
+	Text             string `bson:"text,omitempty" json:"text`
 }
