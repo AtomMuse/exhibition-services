@@ -47,7 +47,7 @@ func main() {
 	}()
 
 	dbCollection := client.Database("atommuse").Collection("exhibition")
-	repo := &exhibirepo.MongoDBRepository{Collection: dbCollection}
+	repo := &exhibirepo.ExhibitionRepository{Collection: dbCollection}
 	service := &service.ExhibitionServices{Repository: repo}
 	handler := &exhibihandler.Handler{Service: service}
 
@@ -59,7 +59,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.New(config))
 
-	url := ginSwagger.URL("/api/swagger/doc.json")
+	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	api := router.Group("/api")

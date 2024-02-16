@@ -8,23 +8,31 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ExhibitionServices is the implementation of the Services interface.
-type ExhibitionServices struct {
-	Repository *exhibirepo.MongoDBRepository
+// IExhibitionServices defines the interface for exhibition services.
+type IExhibitionServices interface {
+	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
+	DeleteExhibition(ctx context.Context, exhibitionID string) error
 }
 
-func (service *ExhibitionServices) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+// ExhibitionServices is the implementation of the IExhibitionServices interface.
+type ExhibitionServices struct {
+	Repository exhibirepo.IExhibitionRepository
+}
+
+func (service ExhibitionServices) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
 	return service.Repository.GetAllExhibitions(ctx)
 }
 
-func (service *ExhibitionServices) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
+func (service ExhibitionServices) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
 	return service.Repository.GetExhibitionByID(ctx, exhibitionID)
 }
 
-func (service *ExhibitionServices) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
+func (service ExhibitionServices) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
 	return service.Repository.CreateExhibition(ctx, exhibition)
 }
 
-func (service *ExhibitionServices) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+func (service ExhibitionServices) DeleteExhibition(ctx context.Context, exhibitionID string) error {
 	return service.Repository.DeleteExhibition(ctx, exhibitionID)
 }

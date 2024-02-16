@@ -10,12 +10,19 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// MongoDBRepository is the MongoDB implementation of the Repository interface.
-type MongoDBRepository struct {
+type IExhibitionRepository interface {
+	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
+	DeleteExhibition(ctx context.Context, exhibitionID string) error
+}
+
+// ExhibitionRepository is the MongoDB implementation of the Repository interface.
+type ExhibitionRepository struct {
 	Collection *mongo.Collection
 }
 
-func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
 	// Define the aggregation pipeline
 	pipeline := primitive.A{
 		bson.M{"$match": bson.M{}}, // You can add match conditions here if needed
@@ -37,7 +44,7 @@ func (r *MongoDBRepository) GetAllExhibitions(ctx context.Context) ([]model.Resp
 	return exhibitions, nil
 }
 
-func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
+func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -71,7 +78,7 @@ func (r *MongoDBRepository) GetExhibitionByID(ctx context.Context, exhibitionID 
 	return &exhibition, nil
 }
 
-func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
+func (r *ExhibitionRepository) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
 	result, err := r.Collection.InsertOne(ctx, exhibition)
 	if err != nil {
 		return nil, err
@@ -86,7 +93,7 @@ func (r *MongoDBRepository) CreateExhibition(ctx context.Context, exhibition *mo
 	return &objectID, nil
 }
 
-func (r *MongoDBRepository) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionID string) error {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {

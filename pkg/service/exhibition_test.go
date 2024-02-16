@@ -20,8 +20,8 @@ func TestGetAllExhibitions(t *testing.T) {
 	mockExhibitions := []model.ResponseExhibition{
 		{
 			ID:                    primitive.NewObjectID(),
-			ExhibitionName:        "",
-			ExhibitionDescription: "",
+			ExhibitionName:        "Exhibition1",
+			ExhibitionDescription: "Exhibition Description",
 			ThumbnailImg:          "",
 			StartDate:             "",
 			EndDate:               "",
@@ -34,8 +34,8 @@ func TestGetAllExhibitions(t *testing.T) {
 		},
 		{
 			ID:                    primitive.NewObjectID(),
-			ExhibitionName:        "",
-			ExhibitionDescription: "",
+			ExhibitionName:        "Exhibition2",
+			ExhibitionDescription: "Exhibition Description",
 			ThumbnailImg:          "",
 			StartDate:             "",
 			EndDate:               "",
@@ -66,11 +66,11 @@ func TestGetExhibitionByID(t *testing.T) {
 	service := &fake.MockService{Repository: mockRepo}
 
 	// Mock the GetExhibitionByID method in the mock repository
-	exhibitionID := "some-exhibition-id"
+	exhibitionID := "0000000000000001"
 	mockExhibition := &model.ResponseExhibition{
 		ID:                    primitive.NewObjectID(),
-		ExhibitionName:        "",
-		ExhibitionDescription: "",
+		ExhibitionName:        "Exhibition",
+		ExhibitionDescription: "Exhibition Description",
 		ThumbnailImg:          "",
 		StartDate:             "",
 		EndDate:               "",
