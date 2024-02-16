@@ -59,7 +59,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.New(config))
 
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	url := ginSwagger.URL("/api/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	api := router.Group("/api")
