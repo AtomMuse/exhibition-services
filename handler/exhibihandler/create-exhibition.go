@@ -13,12 +13,8 @@ import (
 // @Accept json
 // @Produce json
 // @Param requestExhibition body string true "Exhibition data to create"
-// @Success 201 {object} string "Success"
-// @Failure 400 {string} string "Invalid request body"
-// @Failure 401 {string} string "Unauthorized"
-// @Failure 403 {string} string "Permission denied"
-// @Failure 404 {string} string "Not found"
-// @Failure 500 {string} string "Internal server error"
+// @Success 201 {string} string "Success"
+// @Failure 400 {string} web.APIError "Invalid request body"
 // @Router /api/exhibitions [post]
 func (h *Handler) CreateExhibition(c *gin.Context) {
 	var requestExhibition model.RequestCreateExhibition

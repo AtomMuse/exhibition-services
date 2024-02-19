@@ -16,12 +16,8 @@ import (
 // @ID DeleteExhibition
 // @Produce json
 // @Param id path string true "Exhibition ID"
-// @Success 204 "Delete Exhibition Success"
-// @Failure 400 {object} string "Invalid request body"
-// @Failure 401 {object} string "Unauthorized"
-// @Failure 403 {object} string "Permission denied"
-// @Failure 404 {object} string "Not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 "Delete Exhibition Success"
+// @Failure 500 {string} web.APIError "Internal server error"
 // @Router /api/exhibitions/{id} [delete]
 func (h *Handler) DeleteExhibition(c *gin.Context) {
 	exhibitionID := c.Param("id")

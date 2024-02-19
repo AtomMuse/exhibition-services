@@ -24,7 +24,8 @@ import (
 // @title Exhibition Service API
 // @version v0
 // @description Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-// @schemes https http
+// @schemes http
+// @BasePath /api
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)

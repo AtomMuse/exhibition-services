@@ -1,3 +1,4 @@
+basePath: /api
 info:
   contact: {}
   description: Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง
@@ -14,20 +15,6 @@ paths:
       responses:
         "200":
           description: Success
-          schema:
-            items:
-              type: string
-            type: array
-        "400":
-          description: Invalid request body
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "403":
-          description: Permission denied
           schema:
             type: string
         "500":
@@ -59,22 +46,6 @@ paths:
           description: Invalid request body
           schema:
             type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "403":
-          description: Permission denied
-          schema:
-            type: string
-        "404":
-          description: Not found
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
       summary: Create a new exhibition
       tags:
       - Exhibitions
@@ -91,24 +62,8 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Delete Exhibition Success
-        "400":
-          description: Invalid request body
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "403":
-          description: Permission denied
-          schema:
-            type: string
-        "404":
-          description: Not found
-          schema:
-            type: string
         "500":
           description: Internal server error
           schema:
@@ -131,22 +86,6 @@ paths:
         "200":
           description: Success
           schema:
-            type: object
-        "400":
-          description: Invalid request body
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "403":
-          description: Permission denied
-          schema:
-            type: string
-        "404":
-          description: Not found
-          schema:
             type: string
         "500":
           description: Internal server error
@@ -156,6 +95,5 @@ paths:
       tags:
       - Exhibitions
 schemes:
-- https
 - http
 swagger: "2.0"

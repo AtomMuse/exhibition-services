@@ -13,11 +13,8 @@ import (
 // @Tags Exhibitions
 // @ID GetAllExhibitions
 // @Produce json
-// @Success 200 {array} string "Success"
-// @Failure 400 {object} string "Invalid request body"
-// @Failure 401 {object} string "Unauthorized"
-// @Failure 403 {object} string "Permission denied"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {string} string "Success"
+// @Failure 500 {string} web.APIError "Internal server error"
 // @Router /api/exhibitions [get]
 func (h *Handler) GetAllExhibitions(c *gin.Context) {
 	exhibitions, err := h.Service.GetAllExhibitions(c.Request.Context())
@@ -38,12 +35,8 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 // @ID GetExhibitionByID
 // @Produce json
 // @Param id path string true "Exhibition ID"
-// @Success 200 {object} object "Success"
-// @Failure 400 {object} string "Invalid request body"
-// @Failure 401 {object} string "Unauthorized"
-// @Failure 403 {object} string "Permission denied"
-// @Failure 404 {object} string "Not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {string} object "Success"
+// @Failure 500 {string} web.APIError "Internal server error"
 // @Router /api/exhibitions/{id} [get]
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	exhibitionID := c.Param("id")
