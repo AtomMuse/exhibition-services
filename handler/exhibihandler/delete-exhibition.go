@@ -16,7 +16,7 @@ import (
 // @ID DeleteExhibition
 // @Produce json
 // @Param id path string true "Exhibition ID"
-// @Success 200 "Delete Exhibition Success"
+// @Success 200 {string} string "Delete Exhibition Success"
 // @Failure 500 {string} web.APIError "Internal server error"
 // @Router /api/exhibitions/{id} [delete]
 func (h *Handler) DeleteExhibition(c *gin.Context) {

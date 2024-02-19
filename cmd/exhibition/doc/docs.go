@@ -137,7 +137,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Delete Exhibition Success"
+                        "description": "Delete Exhibition Success",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
