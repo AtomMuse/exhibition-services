@@ -1,4 +1,3 @@
-basePath: /api
 info:
   contact: {}
   description: Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง

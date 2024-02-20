@@ -9,7 +9,6 @@
         "contact": {},
         "version": "v0"
     },
-    "basePath": "/api",
     "paths": {
         "/api/exhibitions": {
             "get": {

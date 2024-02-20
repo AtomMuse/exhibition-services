@@ -158,7 +158,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "v0",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "Exhibition Service API",
 	Description:      "Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition",
