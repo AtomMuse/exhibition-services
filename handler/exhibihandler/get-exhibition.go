@@ -8,14 +8,15 @@ import (
 )
 
 // GetExhibitions godoc
-// @Summary Get all exhibitions
-// @Description Get a list of all exhibitions
-// @Tags Exhibitions
-// @ID GetAllExhibitions
-// @Produce json
-// @Success 200 {string} string "Success"
-// @Failure 500 {string} web.APIError "Internal server error"
-// @Router /api/exhibitions [get]
+//
+//	@Summary		Get all exhibitions
+//	@Description	Get a list of all exhibitions
+//	@Tags			Exhibitions
+//	@ID				GetAllExhibitions
+//	@Produce		json
+//	@Success		200	{object}	[]model.ResponseExhibition
+//	@Failure		500	{object}	helper.APIError	"Internal server error"
+//	@Router			/api/exhibitions [get]
 func (h *Handler) GetAllExhibitions(c *gin.Context) {
 	exhibitions, err := h.Service.GetAllExhibitions(c.Request.Context())
 	if err != nil {
@@ -29,15 +30,16 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 }
 
 // GetExhibition godoc
-// @Summary Get exhibition by ID
-// @Description Get exhibition details by ID
-// @Tags Exhibitions
-// @ID GetExhibitionByID
-// @Produce json
-// @Param id path string true "Exhibition ID"
-// @Success 200 {string} object "Success"
-// @Failure 500 {string} web.APIError "Internal server error"
-// @Router /api/exhibitions/{id} [get]
+//
+//	@Summary		Get exhibition by ID
+//	@Description	Get exhibition details by ID
+//	@Tags			Exhibitions
+//	@ID				GetExhibitionByID
+//	@Produce		json
+//	@Param			id	path		string	true	"Exhibition ID"
+//	@Success		200	{object}	model.ResponseExhibition
+//	@Failure		500	{object}	helper.APIError	"Internal server error"
+//	@Router			/api/exhibitions/{id} [get]
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	exhibitionID := c.Param("id")
 

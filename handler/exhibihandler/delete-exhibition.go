@@ -10,15 +10,16 @@ import (
 )
 
 // DeleteExhibition godoc
-// @Summary Delete exhibition by ID
-// @Description Delete exhibition by ID
-// @Tags Exhibitions
-// @ID DeleteExhibition
-// @Produce json
-// @Param id path string true "Exhibition ID"
-// @Success 200 {string} string "Delete Exhibition Success"
-// @Failure 500 {string} web.APIError "Internal server error"
-// @Router /api/exhibitions/{id} [delete]
+//
+//	@Summary		Delete exhibition by ID
+//	@Description	Delete exhibition by ID
+//	@Tags			Exhibitions
+//	@ID				DeleteExhibition
+//	@Produce		json
+//	@Param			id	path		string							true	"Exhibition ID"
+//	@Success		200	{object}	model.ResponseGetExhibitionId	"Delete Exhibition Success"
+//	@Failure		500	{object}	helper.APIError					"Internal server error"
+//	@Router			/api/exhibitions/{id} [delete]
 func (h *Handler) DeleteExhibition(c *gin.Context) {
 	exhibitionID := c.Param("id")
 
@@ -36,5 +37,5 @@ func (h *Handler) DeleteExhibition(c *gin.Context) {
 	}
 
 	// Return a successful response with no content (HTTP 204 No Content)
-	c.JSON(http.StatusOK, "Delete Exhibition Success")
+	c.JSON(http.StatusOK, gin.H{"_id": exhibitionID + " has been deleted."})
 }

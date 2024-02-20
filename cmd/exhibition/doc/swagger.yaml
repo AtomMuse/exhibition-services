@@ -1,3 +1,226 @@
+definitions:
+  helper.APIError:
+    properties:
+      errorCode:
+        type: integer
+      errorMessage:
+        type: string
+    type: object
+  model.CenterItem:
+    properties:
+      details:
+        $ref: '#/definitions/model.Details'
+      previewType:
+        type: string
+      src:
+        type: string
+    type: object
+  model.Contents:
+    properties:
+      text:
+        items:
+          items:
+            type: string
+          type: array
+        type: array
+      title:
+        type: string
+    type: object
+  model.Details:
+    properties:
+      contents:
+        items:
+          $ref: '#/definitions/model.Contents'
+        type: array
+      img:
+        type: string
+    type: object
+  model.ExhibitionSection:
+    properties:
+      background:
+        type: string
+      contentType:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      leftCol:
+        $ref: '#/definitions/model.LeftColumn'
+      rightCol:
+        $ref: '#/definitions/model.RightColumn'
+      sectionType:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - contentType
+    - sectionType
+    - title
+    type: object
+  model.LeftColumn:
+    properties:
+      contentType:
+        type: string
+      image:
+        type: string
+      imageDescription:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - contentType
+    type: object
+  model.LeftRightItem:
+    properties:
+      details:
+        $ref: '#/definitions/model.Details'
+      previewType:
+        type: string
+      src:
+        type: string
+    type: object
+  model.RequestCreateExhibition:
+    properties:
+      endDate:
+        type: string
+      exhibitionCategories:
+        items:
+          type: string
+        type: array
+      exhibitionDescription:
+        type: string
+      exhibitionName:
+        type: string
+      exhibitionSections:
+        items:
+          $ref: '#/definitions/model.ExhibitionSection'
+        type: array
+      exhibitionTags:
+        items:
+          type: string
+        type: array
+      isPublic:
+        type: boolean
+      layoutUsed:
+        type: string
+      rooms:
+        items:
+          $ref: '#/definitions/model.Room'
+        type: array
+      startDate:
+        type: string
+      thumbnailImg:
+        type: string
+      userId:
+        $ref: '#/definitions/model.UserID'
+    required:
+    - endDate
+    - exhibitionName
+    - layoutUsed
+    - startDate
+    - userId
+    type: object
+  model.ResponseExhibition:
+    properties:
+      _id:
+        type: string
+      endDate:
+        type: string
+      exhibitionCategories:
+        items:
+          type: string
+        type: array
+      exhibitionDescription:
+        type: string
+      exhibitionName:
+        type: string
+      exhibitionSections:
+        items:
+          $ref: '#/definitions/model.ExhibitionSection'
+        type: array
+      exhibitionTags:
+        items:
+          type: string
+        type: array
+      isPublic:
+        type: boolean
+      layoutUsed:
+        type: string
+      rooms:
+        items:
+          $ref: '#/definitions/model.Room'
+        type: array
+      startDate:
+        type: string
+      thumbnailImg:
+        type: string
+      userId:
+        $ref: '#/definitions/model.UserID'
+      visitedNumber:
+        type: integer
+    required:
+    - _id
+    - exhibitionName
+    - layoutUsed
+    - userId
+    type: object
+  model.ResponseGetExhibitionId:
+    properties:
+      _id:
+        type: string
+    required:
+    - _id
+    type: object
+  model.RightColumn:
+    properties:
+      contentType:
+        type: string
+      image:
+        type: string
+      imageDescription:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - contentType
+    type: object
+  model.Room:
+    properties:
+      center:
+        items:
+          $ref: '#/definitions/model.CenterItem'
+        type: array
+      left:
+        items:
+          $ref: '#/definitions/model.LeftRightItem'
+        type: array
+      mapThumbnail:
+        type: string
+      right:
+        items:
+          $ref: '#/definitions/model.LeftRightItem'
+        type: array
+    type: object
+  model.UserID:
+    properties:
+      _id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      userId:
+        type: integer
+    required:
+    - userId
+    type: object
 info:
   contact: {}
   description: Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง
@@ -13,13 +236,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: Success
+          description: OK
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/model.ResponseExhibition'
+            type: array
         "500":
           description: Internal server error
           schema:
-            type: string
+            $ref: '#/definitions/helper.APIError'
       summary: Get all exhibitions
       tags:
       - Exhibitions
@@ -33,18 +258,18 @@ paths:
         name: requestExhibition
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/model.RequestCreateExhibition'
       produces:
       - application/json
       responses:
         "201":
           description: Success
           schema:
-            type: string
+            $ref: '#/definitions/model.ResponseGetExhibitionId'
         "400":
           description: Invalid request body
           schema:
-            type: string
+            $ref: '#/definitions/helper.APIError'
       summary: Create a new exhibition
       tags:
       - Exhibitions
@@ -64,11 +289,11 @@ paths:
         "200":
           description: Delete Exhibition Success
           schema:
-            type: string
+            $ref: '#/definitions/model.ResponseGetExhibitionId'
         "500":
           description: Internal server error
           schema:
-            type: string
+            $ref: '#/definitions/helper.APIError'
       summary: Delete exhibition by ID
       tags:
       - Exhibitions
@@ -85,13 +310,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: Success
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/model.ResponseExhibition'
         "500":
           description: Internal server error
           schema:
-            type: string
+            $ref: '#/definitions/helper.APIError'
       summary: Get exhibition by ID
       tags:
       - Exhibitions

@@ -1,21 +1,22 @@
 package exhibihandler
 
 import (
+	_ "atommuse/backend/exhibition-service/pkg/helper"
 	"atommuse/backend/exhibition-service/pkg/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create a new exhibition
-// @Description Create a new exhibition
-// @Tags Exhibitions
-// @Accept json
-// @Produce json
-// @Param requestExhibition body string true "Exhibition data to create"
-// @Success 201 {string} string "Success"
-// @Failure 400 {string} web.APIError "Invalid request body"
-// @Router /api/exhibitions [post]
+//	@Summary		Create a new exhibition
+//	@Description	Create a new exhibition
+//	@Tags			Exhibitions
+//	@Accept			json
+//	@Produce		json
+//	@Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
+//	@Success		201					{object}	model.ResponseGetExhibitionId	"Success"
+//	@Failure		400					{object}	helper.APIError					"Invalid request body"
+//	@Router			/api/exhibitions [post]
 func (h *Handler) CreateExhibition(c *gin.Context) {
 	var requestExhibition model.RequestCreateExhibition
 
@@ -33,5 +34,5 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	}
 
 	// Return the created exhibition ID
-	c.JSON(http.StatusCreated, gin.H{"id": objectID.Hex()})
+	c.JSON(http.StatusCreated, gin.H{"_id": objectID.Hex()})
 }

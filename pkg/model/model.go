@@ -90,6 +90,11 @@ type ResponseExhibition struct {
 }
 
 // RequestGetExhibition represents the structure of the request to get an exhibition.
+type ResponseGetExhibitionId struct {
+	ID primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" validate:"required"`
+}
+
+// RequestGetExhibition represents the structure of the request to get an exhibition.
 type RequestGetExhibition struct {
 	ID primitive.ObjectID `json:"-" validate:"required,primitive_object"`
 }
