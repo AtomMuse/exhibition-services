@@ -118,6 +118,8 @@ definitions:
         type: string
       userId:
         $ref: '#/definitions/model.UserID'
+      visitedNumber:
+        type: integer
     required:
     - endDate
     - exhibitionName

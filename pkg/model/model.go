@@ -112,6 +112,6 @@ type RequestCreateExhibition struct {
 	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
 	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required"`
 	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" validate:"dive"`
-	VisitedNumber         int                 `bson:"visitedNumber,omitempty" json:"visitedNumber"`
+	VisitedNumber         int                 `bson:"visitedNumber,omitempty" json:"visitedNumber,omitempty"`
 	Room                  []Room              `bson:"rooms,omitempty" json:"rooms,omitempty"`
 }
