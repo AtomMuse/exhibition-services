@@ -232,8 +232,8 @@ info:
 paths:
   /api/exhibitions:
     get:
-      description: Get a list of all exhibitions
-      operationId: GetAllExhibitions
+      description: Get a list of all exhibitions is public
+      operationId: GetExhibitionsIsPublic
       produces:
       - application/json
       responses:
@@ -247,7 +247,7 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
-      summary: Get all exhibitions
+      summary: Get all exhibitions is public
       tags:
       - Exhibitions
     post:

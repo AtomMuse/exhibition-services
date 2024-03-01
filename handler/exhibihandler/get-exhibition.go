@@ -54,3 +54,25 @@ func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	// Return the exhibition details
 	c.JSON(http.StatusOK, exhibition)
 }
+
+// GetExhibitions godoc
+//
+//	@Summary		Get all exhibitions is public
+//	@Description	Get a list of all exhibitions is public
+//	@Tags			Exhibitions
+//	@ID				GetExhibitionsIsPublic
+//	@Produce		json
+//	@Success		200	{object}	[]model.ResponseExhibition
+//	@Failure		500	{object}	helper.APIError	"Internal server error"
+//	@Router			/api/exhibitions [get]
+func (h *Handler) GetExhibitionsIsPublic(c *gin.Context) {
+	exhibitions, err := h.Service.GetExhibitionsIsPublic(c.Request.Context())
+	if err != nil {
+		log.Printf("Error retrieving exhibitions : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Return the exhibition details
+	c.JSON(http.StatusOK, exhibitions)
+}

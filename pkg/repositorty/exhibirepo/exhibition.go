@@ -13,6 +13,7 @@ import (
 type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 }
@@ -76,6 +77,29 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 	}
 
 	return &exhibition, nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error) {
+	// Define the match stage for the aggregation pipeline
+	matchStage := bson.M{"$match": bson.M{"isPublic": true}}
+
+	// Aggregate pipeline
+	pipeline := []bson.M{matchStage}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of documents
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+
+	return exhibitions, nil
 }
 
 func (r *ExhibitionRepository) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {

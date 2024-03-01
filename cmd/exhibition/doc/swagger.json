@@ -12,15 +12,15 @@
     "paths": {
         "/api/exhibitions": {
             "get": {
-                "description": "Get a list of all exhibitions",
+                "description": "Get a list of all exhibitions is public",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Exhibitions"
                 ],
-                "summary": "Get all exhibitions",
-                "operationId": "GetAllExhibitions",
+                "summary": "Get all exhibitions is public",
+                "operationId": "GetExhibitionsIsPublic",
                 "responses": {
                     "200": {
                         "description": "OK",

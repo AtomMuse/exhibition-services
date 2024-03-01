@@ -64,11 +64,14 @@ func main() {
 
 	api := router.Group("/api")
 	{
-		api.GET("/exhibitions", func(c *gin.Context) {
+		api.GET("/allExhibitions", func(c *gin.Context) {
 			handler.GetAllExhibitions(c)
 		})
 		api.GET("/exhibitions/:id", func(c *gin.Context) {
 			handler.GetExhibitionByID(c)
+		})
+		api.GET("/exhibitions", func(c *gin.Context) {
+			handler.GetExhibitionsIsPublic(c)
 		})
 		api.POST("/exhibitions", func(c *gin.Context) {
 			handler.CreateExhibition(c)

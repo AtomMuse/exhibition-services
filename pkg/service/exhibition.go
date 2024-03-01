@@ -12,6 +12,7 @@ import (
 type IExhibitionServices interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetExhibitionsIsPublic(context.Context) ([]model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 }
@@ -27,6 +28,10 @@ func (service ExhibitionServices) GetAllExhibitions(ctx context.Context) ([]mode
 
 func (service ExhibitionServices) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
 	return service.Repository.GetExhibitionByID(ctx, exhibitionID)
+}
+
+func (service ExhibitionServices) GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetExhibitionsIsPublic(ctx)
 }
 
 func (service ExhibitionServices) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {

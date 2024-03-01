@@ -25,6 +25,12 @@ func (m *MockRepository) GetExhibitionByID(ctx context.Context, exhibitionID str
 	return args.Get(0).(*model.ResponseExhibition), args.Error(1)
 }
 
+// GetExhibitionsIsPublic is a mock implementation for testing.
+func (m *MockRepository) GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]model.ResponseExhibition), args.Error(1)
+}
+
 // CreateExhibition is a mock implementation for testing.
 func (m *MockRepository) CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error) {
 	args := m.Called(ctx, exhibition)
