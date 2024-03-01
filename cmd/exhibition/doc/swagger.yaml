@@ -1,8 +1,6 @@
 definitions:
   helper.APIError:
     properties:
-      errorCode:
-        type: integer
       errorMessage:
         type: string
     type: object
@@ -122,10 +120,49 @@ definitions:
         type: integer
     required:
     - endDate
+    - exhibitionDescription
     - exhibitionName
+    - isPublic
     - layoutUsed
     - startDate
     - userId
+    type: object
+  model.RequestUpdateExhibition:
+    properties:
+      endDate:
+        type: string
+      exhibitionCategories:
+        items:
+          type: string
+        type: array
+      exhibitionDescription:
+        type: string
+      exhibitionName:
+        type: string
+      exhibitionSections:
+        items:
+          $ref: '#/definitions/model.ExhibitionSection'
+        type: array
+      exhibitionTags:
+        items:
+          type: string
+        type: array
+      isPublic:
+        type: boolean
+      layoutUsed:
+        type: string
+      rooms:
+        items:
+          $ref: '#/definitions/model.Room'
+        type: array
+      startDate:
+        type: string
+      thumbnailImg:
+        type: string
+      userId:
+        $ref: '#/definitions/model.UserID'
+      visitedNumber:
+        type: integer
     type: object
   model.ResponseExhibition:
     properties:
@@ -320,6 +357,35 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       summary: Get exhibition by ID
+      tags:
+      - Exhibitions
+    put:
+      description: Update exhibition details by ID
+      operationId: UpdateExhibition
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Exhibition data to update
+        in: body
+        name: updateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.RequestUpdateExhibition'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Update exhibition by ID
       tags:
       - Exhibitions
 schemes:

@@ -113,6 +113,49 @@
                     }
                 }
             },
+            "put": {
+                "description": "Update exhibition details by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Update exhibition by ID",
+                "operationId": "UpdateExhibition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Exhibition data to update",
+                        "name": "updateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RequestUpdateExhibition"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete exhibition by ID",
                 "produces": [
@@ -153,9 +196,6 @@
         "helper.APIError": {
             "type": "object",
             "properties": {
-                "errorCode": {
-                    "type": "integer"
-                },
                 "errorMessage": {
                     "type": "string"
                 }
@@ -284,11 +324,69 @@
             "type": "object",
             "required": [
                 "endDate",
+                "exhibitionDescription",
                 "exhibitionName",
+                "isPublic",
                 "layoutUsed",
                 "startDate",
                 "userId"
             ],
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "exhibitionCategories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "exhibitionDescription": {
+                    "type": "string"
+                },
+                "exhibitionName": {
+                    "type": "string"
+                },
+                "exhibitionSections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ExhibitionSection"
+                    }
+                },
+                "exhibitionTags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "isPublic": {
+                    "type": "boolean"
+                },
+                "layoutUsed": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Room"
+                    }
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "thumbnailImg": {
+                    "type": "string"
+                },
+                "userId": {
+                    "$ref": "#/definitions/model.UserID"
+                },
+                "visitedNumber": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.RequestUpdateExhibition": {
+            "type": "object",
             "properties": {
                 "endDate": {
                     "type": "string"

@@ -42,3 +42,8 @@ func (m *MockRepository) DeleteExhibition(ctx context.Context, exhibitionID stri
 	args := m.Called(ctx, exhibitionID)
 	return args.Error(0)
 }
+
+func (m *MockRepository) UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error) {
+	args := m.Called(ctx, exhibitionID, update)
+	return args.Get(0).(*primitive.ObjectID), args.Error(1)
+}

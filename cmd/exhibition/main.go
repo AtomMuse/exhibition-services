@@ -79,6 +79,9 @@ func main() {
 		api.DELETE("/exhibitions/:id", func(c *gin.Context) {
 			handler.DeleteExhibition(c)
 		})
+		api.PUT("/exhibitions/:id", func(c *gin.Context) {
+			handler.UpdateExhibition(c)
+		})
 	}
 
 	log.Println("Server started on :8080")

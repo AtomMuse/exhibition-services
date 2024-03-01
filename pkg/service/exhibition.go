@@ -15,6 +15,7 @@ type IExhibitionServices interface {
 	GetExhibitionsIsPublic(context.Context) ([]model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
+	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 }
 
 // ExhibitionServices is the implementation of the IExhibitionServices interface.
@@ -40,4 +41,8 @@ func (service ExhibitionServices) CreateExhibition(ctx context.Context, exhibiti
 
 func (service ExhibitionServices) DeleteExhibition(ctx context.Context, exhibitionID string) error {
 	return service.Repository.DeleteExhibition(ctx, exhibitionID)
+}
+
+func (service ExhibitionServices) UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error) {
+	return service.Repository.UpdateExhibition(ctx, exhibitionID, update)
 }
