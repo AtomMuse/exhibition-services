@@ -64,7 +64,7 @@ func main() {
 
 	api := router.Group("/api")
 	{
-		api.GET("/allExhibitions", func(c *gin.Context) {
+		api.GET("/all-exhibitions", func(c *gin.Context) {
 			handler.GetAllExhibitions(c)
 		})
 		api.GET("/exhibitions/:id", func(c *gin.Context) {
