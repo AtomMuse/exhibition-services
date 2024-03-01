@@ -101,17 +101,17 @@ type RequestGetExhibition struct {
 
 // RequestCreateExhibition represents the structure of the request to create an exhibition.
 type RequestCreateExhibition struct {
-	ExhibitionName        string              `bson:"exhibitionName" json:"exhibitionName" validate:"required"`
-	ExhibitionDescription string              `bson:"exhibitionDescription,omitempty" json:"exhibitionDescription,omitempty"`
+	ExhibitionName        string              `bson:"exhibitionName" json:"exhibitionName" validate:"required" error:"ExhibitionName is required"`
+	ExhibitionDescription string              `bson:"exhibitionDescription" json:"exhibitionDescription" validate:"required" error:"ExhibitionDescription is required"`
 	ThumbnailImg          string              `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
-	StartDate             string              `bson:"startDate" json:"startDate" validate:"required"`
-	EndDate               string              `bson:"endDate" json:"endDate" validate:"required,gtfield=StartDate"`
-	IsPublic              bool                `bson:"isPublic" json:"isPublic"`
+	StartDate             string              `bson:"startDate" json:"startDate" validate:"required" error:"StartDate is required"`
+	EndDate               string              `bson:"endDate" json:"endDate" validate:"required,gtfield=StartDate" error:"EndDate is required and must be greater than StartDate"`
+	IsPublic              bool                `bson:"isPublic" json:"isPublic" validate:"required" error:"IsPublic is required"`
 	ExhibitionCategories  []string            `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
 	ExhibitionTags        []string            `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
-	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
-	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required"`
-	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" validate:"dive"`
+	UserID                UserID              `bson:"userId" json:"userId" validate:"required" error:"UserID is required"`
+	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required" error:"LayoutUsed is required"`
+	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty"`
 	VisitedNumber         int                 `bson:"visitedNumber,omitempty" json:"visitedNumber,omitempty"`
 	Room                  []Room              `bson:"rooms,omitempty" json:"rooms,omitempty"`
 }
