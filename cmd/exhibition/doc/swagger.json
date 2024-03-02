@@ -10,6 +10,72 @@
         "version": "v0"
     },
     "paths": {
+        "/api/all-exhibitions": {
+            "get": {
+                "description": "Get a list of all exhibitions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get all exhibitions",
+                "operationId": "GetAllExhibitions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibition"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exhibitionSection/{id}": {
+            "get": {
+                "description": "Get exhibition details by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get exhibitionSection by ID",
+                "operationId": "GetExhibitionSectionByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibitionSection"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitions": {
             "get": {
                 "description": "Get a list of all exhibitions is public",
@@ -190,6 +256,82 @@
                     }
                 }
             }
+        },
+        "/api/sections": {
+            "post": {
+                "description": "Create a new exhibitionSection",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Create a new exhibitionSection",
+                "parameters": [
+                    {
+                        "description": "ExhibitionSection data to create",
+                        "name": "requestExhibitionSection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RequestCreateExhibitionSection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseGetExhibitionSectionId"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sections/{id}": {
+            "delete": {
+                "description": "Delete Section by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Delete Section by ID",
+                "operationId": "DeleteExhibitionSectionByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Section ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete Section Success",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseGetExhibitionId"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -250,14 +392,21 @@
             "type": "object",
             "required": [
                 "contentType",
+                "exhibitionID",
                 "sectionType",
                 "title"
             ],
             "properties": {
+                "_id": {
+                    "type": "string"
+                },
                 "background": {
                     "type": "string"
                 },
                 "contentType": {
+                    "type": "string"
+                },
+                "exhibitionID": {
                     "type": "string"
                 },
                 "images": {
@@ -329,6 +478,7 @@
                 "isPublic",
                 "layoutUsed",
                 "startDate",
+                "status",
                 "userId"
             ],
             "properties": {
@@ -347,10 +497,10 @@
                 "exhibitionName": {
                     "type": "string"
                 },
-                "exhibitionSections": {
+                "exhibitionSectionsID": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.ExhibitionSection"
+                        "type": "string"
                     }
                 },
                 "exhibitionTags": {
@@ -374,6 +524,9 @@
                 "startDate": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "thumbnailImg": {
                     "type": "string"
                 },
@@ -385,8 +538,52 @@
                 }
             }
         },
+        "model.RequestCreateExhibitionSection": {
+            "type": "object",
+            "required": [
+                "contentType",
+                "exhibitionID",
+                "sectionType",
+                "title"
+            ],
+            "properties": {
+                "background": {
+                    "type": "string"
+                },
+                "contentType": {
+                    "type": "string"
+                },
+                "exhibitionID": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "leftCol": {
+                    "$ref": "#/definitions/model.LeftColumn"
+                },
+                "rightCol": {
+                    "$ref": "#/definitions/model.RightColumn"
+                },
+                "sectionType": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.RequestUpdateExhibition": {
             "type": "object",
+            "required": [
+                "status"
+            ],
             "properties": {
                 "endDate": {
                     "type": "string"
@@ -403,10 +600,10 @@
                 "exhibitionName": {
                     "type": "string"
                 },
-                "exhibitionSections": {
+                "exhibitionSectionsID": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.ExhibitionSection"
+                        "type": "string"
                     }
                 },
                 "exhibitionTags": {
@@ -428,6 +625,9 @@
                     }
                 },
                 "startDate": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "thumbnailImg": {
@@ -447,6 +647,7 @@
                 "_id",
                 "exhibitionName",
                 "layoutUsed",
+                "status",
                 "userId"
             ],
             "properties": {
@@ -495,6 +696,9 @@
                 "startDate": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "thumbnailImg": {
                     "type": "string"
                 },
@@ -506,7 +710,62 @@
                 }
             }
         },
+        "model.ResponseExhibitionSection": {
+            "type": "object",
+            "required": [
+                "contentType",
+                "exhibitionID",
+                "sectionType",
+                "title"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "string"
+                },
+                "contentType": {
+                    "type": "string"
+                },
+                "exhibitionID": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "leftCol": {
+                    "$ref": "#/definitions/model.LeftColumn"
+                },
+                "rightCol": {
+                    "$ref": "#/definitions/model.RightColumn"
+                },
+                "sectionType": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ResponseGetExhibitionId": {
+            "type": "object",
+            "required": [
+                "_id"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResponseGetExhibitionSectionId": {
             "type": "object",
             "required": [
                 "_id"
@@ -572,9 +831,6 @@
                 "userId"
             ],
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "firstName": {
                     "type": "string"
                 },

@@ -1,4 +1,4 @@
-package service_test
+package exhibisvc_test
 
 import (
 	"atommuse/backend/exhibition-service/internal/fake"
@@ -112,7 +112,7 @@ func TestCreateExhibition(t *testing.T) {
 		ExhibitionTags:        []string{},
 		UserID:                model.UserID{},
 		LayoutUsed:            "",
-		ExhibitionSections:    []model.ExhibitionSection{},
+		ExhibitionSectionsID:  []string{},
 	}
 	mockRepo.On("CreateExhibition", mock.Anything, mockRequestExhibition).Return(&mockExhibitionID, nil)
 

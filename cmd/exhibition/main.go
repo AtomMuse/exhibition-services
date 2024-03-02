@@ -3,7 +3,9 @@ package main
 import (
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
-	"atommuse/backend/exhibition-service/pkg/service"
+	"atommuse/backend/exhibition-service/pkg/repositorty/sectionrepo"
+	"atommuse/backend/exhibition-service/pkg/service/exhibisvc"
+	"atommuse/backend/exhibition-service/pkg/service/sectionsvc"
 	"context"
 	"log"
 	"os"
@@ -48,8 +50,13 @@ func main() {
 
 	dbCollection := client.Database("atommuse").Collection("exhibitions")
 	repo := &exhibirepo.ExhibitionRepository{Collection: dbCollection}
-	service := &service.ExhibitionServices{Repository: repo}
-	handler := &exhibihandler.Handler{Service: service}
+	service := &exhibisvc.ExhibitionServices{Repository: repo}
+	handler := &exhibihandler.Handler{ExhibitionService: service}
+
+	dbCollectionSection := client.Database("atommuse").Collection("exhibitionSections")
+	repoSection := &sectionrepo.SectionRepository{Collection: dbCollectionSection}
+	serviceSection := &sectionsvc.SectionServices{Repository: repoSection}
+	handlerSection := &exhibihandler.Handler{SectionService: serviceSection}
 
 	// Add CORS middleware
 	config := cors.DefaultConfig()
@@ -81,6 +88,15 @@ func main() {
 		})
 		api.PUT("/exhibitions/:id", func(c *gin.Context) {
 			handler.UpdateExhibition(c)
+		})
+		api.POST("/sections", func(c *gin.Context) {
+			handlerSection.CreateExhibitionSection(c)
+		})
+		api.DELETE("/sections/:id", func(c *gin.Context) {
+			handlerSection.DeleteExhibitionSectionByID(c)
+		})
+		api.GET("/exhibitionSection/:id", func(c *gin.Context) {
+			handler.GetExhibitionSectionByID(c)
 		})
 	}
 

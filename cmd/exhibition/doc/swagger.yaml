@@ -35,9 +35,13 @@ definitions:
     type: object
   model.ExhibitionSection:
     properties:
+      _id:
+        type: string
       background:
         type: string
       contentType:
+        type: string
+      exhibitionID:
         type: string
       images:
         items:
@@ -55,6 +59,7 @@ definitions:
         type: string
     required:
     - contentType
+    - exhibitionID
     - sectionType
     - title
     type: object
@@ -94,9 +99,9 @@ definitions:
         type: string
       exhibitionName:
         type: string
-      exhibitionSections:
+      exhibitionSectionsID:
         items:
-          $ref: '#/definitions/model.ExhibitionSection'
+          type: string
         type: array
       exhibitionTags:
         items:
@@ -111,6 +116,8 @@ definitions:
           $ref: '#/definitions/model.Room'
         type: array
       startDate:
+        type: string
+      status:
         type: string
       thumbnailImg:
         type: string
@@ -125,7 +132,36 @@ definitions:
     - isPublic
     - layoutUsed
     - startDate
+    - status
     - userId
+    type: object
+  model.RequestCreateExhibitionSection:
+    properties:
+      background:
+        type: string
+      contentType:
+        type: string
+      exhibitionID:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      leftCol:
+        $ref: '#/definitions/model.LeftColumn'
+      rightCol:
+        $ref: '#/definitions/model.RightColumn'
+      sectionType:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - contentType
+    - exhibitionID
+    - sectionType
+    - title
     type: object
   model.RequestUpdateExhibition:
     properties:
@@ -139,9 +175,9 @@ definitions:
         type: string
       exhibitionName:
         type: string
-      exhibitionSections:
+      exhibitionSectionsID:
         items:
-          $ref: '#/definitions/model.ExhibitionSection'
+          type: string
         type: array
       exhibitionTags:
         items:
@@ -157,12 +193,16 @@ definitions:
         type: array
       startDate:
         type: string
+      status:
+        type: string
       thumbnailImg:
         type: string
       userId:
         $ref: '#/definitions/model.UserID'
       visitedNumber:
         type: integer
+    required:
+    - status
     type: object
   model.ResponseExhibition:
     properties:
@@ -196,6 +236,8 @@ definitions:
         type: array
       startDate:
         type: string
+      status:
+        type: string
       thumbnailImg:
         type: string
       userId:
@@ -206,9 +248,47 @@ definitions:
     - _id
     - exhibitionName
     - layoutUsed
+    - status
     - userId
     type: object
+  model.ResponseExhibitionSection:
+    properties:
+      _id:
+        type: string
+      background:
+        type: string
+      contentType:
+        type: string
+      exhibitionID:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      leftCol:
+        $ref: '#/definitions/model.LeftColumn'
+      rightCol:
+        $ref: '#/definitions/model.RightColumn'
+      sectionType:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - contentType
+    - exhibitionID
+    - sectionType
+    - title
+    type: object
   model.ResponseGetExhibitionId:
+    properties:
+      _id:
+        type: string
+    required:
+    - _id
+    type: object
+  model.ResponseGetExhibitionSectionId:
     properties:
       _id:
         type: string
@@ -249,8 +329,6 @@ definitions:
     type: object
   model.UserID:
     properties:
-      _id:
-        type: string
       firstName:
         type: string
       lastName:
@@ -267,6 +345,50 @@ info:
   title: Exhibition Service API
   version: v0
 paths:
+  /api/all-exhibitions:
+    get:
+      description: Get a list of all exhibitions
+      operationId: GetAllExhibitions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ResponseExhibition'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get all exhibitions
+      tags:
+      - Exhibitions
+  /api/exhibitionSection/{id}:
+    get:
+      description: Get exhibition details by ID
+      operationId: GetExhibitionSectionByID
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibitionSection'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get exhibitionSection by ID
+      tags:
+      - Exhibitions
   /api/exhibitions:
     get:
       description: Get a list of all exhibitions is public
@@ -386,6 +508,56 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       summary: Update exhibition by ID
+      tags:
+      - Exhibitions
+  /api/sections:
+    post:
+      consumes:
+      - application/json
+      description: Create a new exhibitionSection
+      parameters:
+      - description: ExhibitionSection data to create
+        in: body
+        name: requestExhibitionSection
+        required: true
+        schema:
+          $ref: '#/definitions/model.RequestCreateExhibitionSection'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: '#/definitions/model.ResponseGetExhibitionSectionId'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Create a new exhibitionSection
+      tags:
+      - Exhibitions
+  /api/sections/{id}:
+    delete:
+      description: Delete Section by ID
+      operationId: DeleteExhibitionSectionByID
+      parameters:
+      - description: Section ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete Section Success
+          schema:
+            $ref: '#/definitions/model.ResponseGetExhibitionId'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Delete Section by ID
       tags:
       - Exhibitions
 schemes:

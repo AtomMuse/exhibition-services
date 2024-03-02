@@ -16,9 +16,9 @@ import (
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibition
 //	@Failure		500	{object}	helper.APIError	"Internal server error"
-//	@Router			/api/exhibitions [get]
+//	@Router			/api/all-exhibitions [get]
 func (h *Handler) GetAllExhibitions(c *gin.Context) {
-	exhibitions, err := h.Service.GetAllExhibitions(c.Request.Context())
+	exhibitions, err := h.ExhibitionService.GetAllExhibitions(c.Request.Context())
 	if err != nil {
 		log.Printf("Error retrieving exhibitions : %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -43,7 +43,7 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
 	exhibitionID := c.Param("id")
 
-	exhibition, err := h.Service.GetExhibitionByID(c.Request.Context(), exhibitionID)
+	exhibition, err := h.ExhibitionService.GetExhibitionByID(c.Request.Context(), exhibitionID)
 	if err != nil {
 		log.Printf("Error retrieving exhibition %s: %v", exhibitionID, err)
 
@@ -66,7 +66,7 @@ func (h *Handler) GetExhibitionByID(c *gin.Context) {
 //	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/exhibitions [get]
 func (h *Handler) GetExhibitionsIsPublic(c *gin.Context) {
-	exhibitions, err := h.Service.GetExhibitionsIsPublic(c.Request.Context())
+	exhibitions, err := h.ExhibitionService.GetExhibitionsIsPublic(c.Request.Context())
 	if err != nil {
 		log.Printf("Error retrieving exhibitions : %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -75,4 +75,28 @@ func (h *Handler) GetExhibitionsIsPublic(c *gin.Context) {
 
 	// Return the exhibition details
 	c.JSON(http.StatusOK, exhibitions)
+}
+
+// @Summary		Get exhibitionSection by ID
+// @Description	Get exhibition details by ID
+// @Tags			Exhibitions
+// @ID				GetExhibitionSectionByID
+// @Produce		json
+// @Param			id	path		string	true	"Exhibition ID"
+// @Success		200	{object}	model.ResponseExhibitionSection
+// @Failure		500	{object}	helper.APIError	"Internal server error"
+// @Router			/api/exhibitionSection/{id} [get]
+func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
+	sectionID := c.Param("id")
+
+	exhibitionSection, err := h.SectionService.GetExhibitionSectionByID(c.Request.Context(), sectionID)
+	if err != nil {
+		log.Printf("Error retrieving exhibition %s: %v", sectionID, err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Return the exhibition details
+	c.JSON(http.StatusOK, exhibitionSection)
 }

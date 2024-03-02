@@ -18,6 +18,7 @@ type IExhibitionRepository interface {
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
+	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -207,8 +208,8 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	if update.LayoutUsed != "" {
 		updateDoc["$set"].(bson.M)["layoutUsed"] = update.LayoutUsed
 	}
-	if len(update.ExhibitionSections) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionSections"] = update.ExhibitionSections
+	if len(update.ExhibitionSectionsID) > 0 {
+		updateDoc["$set"].(bson.M)["exhibitionSectionsID"] = update.ExhibitionSectionsID
 	}
 	if update.VisitedNumber != 0 {
 		updateDoc["$set"].(bson.M)["visitedNumber"] = update.VisitedNumber
@@ -227,4 +228,36 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	}
 
 	return &objectID, nil
+}
+
+func (r *ExhibitionRepository) DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error {
+	// Convert the string IDs to ObjectIds
+	exhibitionObjectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+
+	sectionObjectID, err := primitive.ObjectIDFromHex(sectionID)
+	if err != nil {
+		return fmt.Errorf("invalid section ID format: %v", err)
+	}
+
+	// Define the filter for the UpdateOne operation
+	filter := bson.M{"_id": exhibitionObjectID}
+
+	// Define the update to pull the section ID from the array
+	update := bson.M{"$pull": bson.M{"exhibitionSectionsID": sectionObjectID}}
+
+	// Perform the update
+	updateResult, err := r.Collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	// Check if any document is updated
+	if updateResult.ModifiedCount == 0 {
+		return fmt.Errorf("exhibition section ID not deleted for exhibition ID %s and section ID %s", exhibitionID, sectionID)
+	}
+
+	return nil
 }

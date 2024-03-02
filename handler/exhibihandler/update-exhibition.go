@@ -33,7 +33,7 @@ func (h *Handler) UpdateExhibition(c *gin.Context) {
 	}
 
 	// Call use case to update exhibition
-	objectID, err := h.Service.UpdateExhibition(c.Request.Context(), exhibitionID, &updateRequest)
+	objectID, err := h.ExhibitionService.UpdateExhibition(c.Request.Context(), exhibitionID, &updateRequest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update exhibition"})
 		return
