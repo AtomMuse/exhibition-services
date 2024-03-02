@@ -28,7 +28,8 @@ type ExhibitionRepository struct {
 func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
 	// Define the aggregation pipeline
 	pipeline := primitive.A{
-		bson.M{"$match": bson.M{}}, // You can add match conditions here if needed
+		bson.M{"$match": bson.M{}},
+		bson.M{"$sort": bson.M{"startDate": 1}},
 	}
 
 	// Execute the aggregation
@@ -85,8 +86,11 @@ func (r *ExhibitionRepository) GetExhibitionsIsPublic(ctx context.Context) ([]mo
 	// Define the match stage for the aggregation pipeline
 	matchStage := bson.M{"$match": bson.M{"isPublic": true}}
 
+	// Define the sort stage for the aggregation pipeline
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+
 	// Aggregate pipeline
-	pipeline := []bson.M{matchStage}
+	pipeline := []bson.M{matchStage, sortStage}
 
 	// Execute the aggregation
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
