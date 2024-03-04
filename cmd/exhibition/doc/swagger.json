@@ -40,6 +40,36 @@
                 }
             }
         },
+        "/api/all-sections": {
+            "get": {
+                "description": "Get a list of all exhibition sections",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get all exhibitions sections",
+                "operationId": "GetAllExhibitionSections",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibitionSection"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitionSection/{id}": {
             "get": {
                 "description": "Get exhibition details by ID",
@@ -54,7 +84,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Exhibition ID",
+                        "description": "Exhibition Section ID",
                         "name": "id",
                         "in": "path",
                         "required": true

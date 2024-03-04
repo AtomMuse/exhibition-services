@@ -15,6 +15,7 @@ type ISectionRepository interface {
 	CreateExhibitionSection(ctx context.Context, section *model.RequestCreateExhibitionSection) (*primitive.ObjectID, error)
 	DeleteExhibitionSectionByID(ctx context.Context, sectionID string) error
 	GetExhibitionSectionByID(ctx context.Context, sectionID string) (*model.ResponseExhibitionSection, error)
+	GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error)
 }
 
 // SectionRepository is the MongoDB implementation of the Repository interface.
@@ -131,4 +132,27 @@ func (r *SectionRepository) GetExhibitionSectionByID(ctx context.Context, sectio
 	}
 
 	return &exhibitionSection, nil
+}
+
+func (r *SectionRepository) GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error) {
+	// Define the aggregation pipeline
+	pipeline := primitive.A{
+		bson.M{"$match": bson.M{}},
+		bson.M{"$sort": bson.M{"startDate": 1}},
+	}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of documents
+	var exhibitionSections []model.ResponseExhibitionSection
+	if err := cursor.All(ctx, &exhibitionSections); err != nil {
+		return nil, err
+	}
+
+	return exhibitionSections, nil
 }

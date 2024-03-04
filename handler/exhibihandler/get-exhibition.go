@@ -82,7 +82,7 @@ func (h *Handler) GetExhibitionsIsPublic(c *gin.Context) {
 // @Tags			Exhibitions
 // @ID				GetExhibitionSectionByID
 // @Produce		json
-// @Param			id	path		string	true	"Exhibition ID"
+// @Param			id	path		string	true	"Exhibition Section ID"
 // @Success		200	{object}	model.ResponseExhibitionSection
 // @Failure		500	{object}	helper.APIError	"Internal server error"
 // @Router			/api/exhibitionSection/{id} [get]
@@ -91,7 +91,7 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 
 	exhibitionSection, err := h.SectionService.GetExhibitionSectionByID(c.Request.Context(), sectionID)
 	if err != nil {
-		log.Printf("Error retrieving exhibition %s: %v", sectionID, err)
+		log.Printf("Error retrieving exhibition section  %s: %v", sectionID, err)
 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -99,4 +99,24 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 
 	// Return the exhibition details
 	c.JSON(http.StatusOK, exhibitionSection)
+}
+
+// @Summary		Get all exhibitions sections
+// @Description	Get a list of all exhibition sections
+// @Tags			Exhibitions
+// @ID				GetAllExhibitionSections
+// @Produce		json
+// @Success		200	{object}	[]model.ResponseExhibitionSection
+// @Failure		500	{object}	helper.APIError	"Internal server error"
+// @Router			/api/all-sections [get]
+func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
+	exhibitionSections, err := h.SectionService.GetAllExhibitionSections(c.Request.Context())
+	if err != nil {
+		log.Printf("Error retrieving exhibitions : %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Return the exhibition details
+	c.JSON(http.StatusOK, exhibitionSections)
 }

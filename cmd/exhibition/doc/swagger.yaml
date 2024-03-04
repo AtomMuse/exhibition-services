@@ -365,12 +365,32 @@ paths:
       summary: Get all exhibitions
       tags:
       - Exhibitions
+  /api/all-sections:
+    get:
+      description: Get a list of all exhibition sections
+      operationId: GetAllExhibitionSections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ResponseExhibitionSection'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get all exhibitions sections
+      tags:
+      - Exhibitions
   /api/exhibitionSection/{id}:
     get:
       description: Get exhibition details by ID
       operationId: GetExhibitionSectionByID
       parameters:
-      - description: Exhibition ID
+      - description: Exhibition Section ID
         in: path
         name: id
         required: true

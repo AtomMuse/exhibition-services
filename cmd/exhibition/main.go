@@ -96,7 +96,10 @@ func main() {
 			handlerSection.DeleteExhibitionSectionByID(c)
 		})
 		api.GET("/exhibitionSection/:id", func(c *gin.Context) {
-			handler.GetExhibitionSectionByID(c)
+			handlerSection.GetExhibitionSectionByID(c)
+		})
+		api.GET("/all-sections/", func(c *gin.Context) {
+			handlerSection.GetAllExhibitionSections(c)
 		})
 	}
 
