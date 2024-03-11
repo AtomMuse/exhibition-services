@@ -15,19 +15,19 @@ type UserID struct {
 type ExhibitionSection struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	SectionType  string             `bson:"sectionType,omitempty" json:"sectionType,omitempty" validate:"required"`
-	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
+	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" `
 	Background   string             `bson:"background,omitempty" json:"background,omitempty"`
-	Title        string             `bson:"title,omitempty" json:"title,omitempty" validate:"required"`
+	Title        string             `bson:"title,omitempty" json:"title,omitempty"`
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
-	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionId" json:"exhibitionIs" validate:"required"`
 }
 
 // LeftColumn represents the structure of the left column in an exhibition section.
 type LeftColumn struct {
-	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
+	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" `
 	Image            string `bson:"image,omitempty" json:"image,omitempty" validate:"omitempty,url"`
 	ImageDescription string `bson:"imageDescription,omitempty" json:"imageDescription,omitempty"`
 	Title            string `bson:"title,omitempty" json:"title,omitempty"`
@@ -36,7 +36,7 @@ type LeftColumn struct {
 
 // RightColumn represents the structure of the right column in an exhibition section.
 type RightColumn struct {
-	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
+	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" `
 	Image            string `bson:"image,omitempty" json:"image,omitempty" validate:"omitempty"`
 	ImageDescription string `bson:"imageDescription,omitempty" json:"imageDescription,omitempty"`
 	Title            string `bson:"title,omitempty" json:"title,omitempty"`
@@ -143,9 +143,9 @@ type RequestUpdateExhibition struct {
 
 type RequestCreateExhibitionSection struct {
 	SectionType  string             `bson:"sectionType,omitempty" json:"sectionType,omitempty" validate:"required"`
-	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
+	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" `
 	Background   string             `bson:"background,omitempty" json:"background,omitempty"`
-	Title        string             `bson:"title,omitempty" json:"title,omitempty" validate:"required"`
+	Title        string             `bson:"title,omitempty" json:"title,omitempty"`
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
@@ -156,9 +156,9 @@ type RequestCreateExhibitionSection struct {
 type ResponseExhibitionSection struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	SectionType  string             `bson:"sectionType,omitempty" json:"sectionType,omitempty" validate:"required"`
-	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" validate:"required"`
+	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty"`
 	Background   string             `bson:"background,omitempty" json:"background,omitempty"`
-	Title        string             `bson:"title,omitempty" json:"title,omitempty" validate:"required"`
+	Title        string             `bson:"title,omitempty" json:"title,omitempty" `
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `

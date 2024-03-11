@@ -421,10 +421,8 @@
         "model.ExhibitionSection": {
             "type": "object",
             "required": [
-                "contentType",
-                "exhibitionID",
-                "sectionType",
-                "title"
+                "exhibitionIs",
+                "sectionType"
             ],
             "properties": {
                 "_id": {
@@ -436,7 +434,7 @@
                 "contentType": {
                     "type": "string"
                 },
-                "exhibitionID": {
+                "exhibitionIs": {
                     "type": "string"
                 },
                 "images": {
@@ -464,9 +462,6 @@
         },
         "model.LeftColumn": {
             "type": "object",
-            "required": [
-                "contentType"
-            ],
             "properties": {
                 "contentType": {
                     "type": "string"
@@ -571,10 +566,8 @@
         "model.RequestCreateExhibitionSection": {
             "type": "object",
             "required": [
-                "contentType",
                 "exhibitionID",
-                "sectionType",
-                "title"
+                "sectionType"
             ],
             "properties": {
                 "background": {
@@ -743,10 +736,8 @@
         "model.ResponseExhibitionSection": {
             "type": "object",
             "required": [
-                "contentType",
                 "exhibitionID",
-                "sectionType",
-                "title"
+                "sectionType"
             ],
             "properties": {
                 "_id": {
@@ -808,9 +799,6 @@
         },
         "model.RightColumn": {
             "type": "object",
-            "required": [
-                "contentType"
-            ],
             "properties": {
                 "contentType": {
                     "type": "string"

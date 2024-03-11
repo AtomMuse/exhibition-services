@@ -41,7 +41,7 @@ definitions:
         type: string
       contentType:
         type: string
-      exhibitionID:
+      exhibitionIs:
         type: string
       images:
         items:
@@ -58,10 +58,8 @@ definitions:
       title:
         type: string
     required:
-    - contentType
-    - exhibitionID
+    - exhibitionIs
     - sectionType
-    - title
     type: object
   model.LeftColumn:
     properties:
@@ -75,8 +73,6 @@ definitions:
         type: string
       title:
         type: string
-    required:
-    - contentType
     type: object
   model.LeftRightItem:
     properties:
@@ -158,10 +154,8 @@ definitions:
       title:
         type: string
     required:
-    - contentType
     - exhibitionID
     - sectionType
-    - title
     type: object
   model.RequestUpdateExhibition:
     properties:
@@ -276,10 +270,8 @@ definitions:
       title:
         type: string
     required:
-    - contentType
     - exhibitionID
     - sectionType
-    - title
     type: object
   model.ResponseGetExhibitionId:
     properties:
@@ -307,8 +299,6 @@ definitions:
         type: string
       title:
         type: string
-    required:
-    - contentType
     type: object
   model.Room:
     properties:
