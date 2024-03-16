@@ -51,6 +51,15 @@ func (h *Handler) GetExhibitionByID(c *gin.Context) {
 		return
 	}
 
+	// Increment the visited number
+	exhibition.VisitedNumber++
+
+	// Update the visited number in the database
+	if err := h.ExhibitionService.UpdateVisitedNumber(c.Request.Context(), exhibitionID, exhibition.VisitedNumber); err != nil {
+		log.Printf("Error updating visited number for exhibition %s: %v", exhibitionID, err)
+		// Handle the error accordingly
+	}
+
 	// Return the exhibition details
 	c.JSON(http.StatusOK, exhibition)
 }

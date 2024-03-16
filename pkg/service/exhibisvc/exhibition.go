@@ -17,6 +17,7 @@ type IExhibitionServices interface {
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
+	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 }
 
 // ExhibitionServices is the implementation of the IExhibitionServices interface.
@@ -50,4 +51,7 @@ func (service ExhibitionServices) UpdateExhibition(ctx context.Context, exhibiti
 
 func (service ExhibitionServices) DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error {
 	return service.Repository.DeleteExhibitionSectionID(ctx, exhibitionID, sectionID)
+}
+func (service ExhibitionServices) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
+	return service.Repository.UpdateVisitedNumber(ctx, exhibitionID, visitedNumber)
 }

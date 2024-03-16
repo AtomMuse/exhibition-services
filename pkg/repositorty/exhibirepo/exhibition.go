@@ -19,6 +19,7 @@ type IExhibitionRepository interface {
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
+	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -257,6 +258,27 @@ func (r *ExhibitionRepository) DeleteExhibitionSectionID(ctx context.Context, ex
 	// Check if any document is updated
 	if updateResult.ModifiedCount == 0 {
 		return fmt.Errorf("exhibition section ID not deleted for exhibition ID %s and section ID %s", exhibitionID, sectionID)
+	}
+
+	return nil
+}
+func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+
+	// Define the filter to find the exhibition by its ID
+	filter := bson.M{"_id": objectID}
+
+	// Define the update to increment the visited number
+	update := bson.M{"$set": bson.M{"visitedNumber": visitedNumber}}
+
+	// Perform the update operation
+	_, err = r.Collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating visited number: %v", err)
 	}
 
 	return nil
