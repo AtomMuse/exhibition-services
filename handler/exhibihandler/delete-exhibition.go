@@ -27,28 +27,27 @@ func (h *Handler) DeleteExhibition(c *gin.Context) {
 	if err != nil {
 		log.Printf("Error deleting exhibition %s: %v", exhibitionID, err)
 
-		// Check for specific errors and return appropriate responses
-		if errors.Is(err, mongo.ErrNoDocuments) {
+		switch {
+		case errors.Is(err, mongo.ErrNoDocuments):
 			c.JSON(http.StatusNotFound, gin.H{"error": "Exhibition not found"})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		}
 		return
 	}
 
-	// Return a successful response with no content (HTTP 204 No Content)
 	c.JSON(http.StatusOK, gin.H{"_id": exhibitionID + " has been deleted."})
 }
 
-// @Summary		Delete Section by ID
-// @Description	Delete Section by ID
-// @Tags			Exhibitions
-// @ID				DeleteExhibitionSectionByID
-// @Produce		json
-// @Param			id	path		string							true	"Section ID"
-// @Success		200	{object}	model.ResponseGetExhibitionId	"Delete Section Success"
-// @Failure		500	{object}	helper.APIError					"Internal server error"
-// @Router			/api/sections/{id} [delete]
+//	@Summary		Delete Section by ID
+//	@Description	Delete Section by ID
+//	@Tags			Sections
+//	@ID				DeleteExhibitionSectionByID
+//	@Produce		json
+//	@Param			id	path		string							true	"Section ID"
+//	@Success		200	{object}	model.ResponseGetExhibitionId	"Delete Section Success"
+//	@Failure		500	{object}	helper.APIError					"Internal server error"
+//	@Router			/api/sections/{id} [delete]
 func (h *Handler) DeleteExhibitionSectionByID(c *gin.Context) {
 	sectionID := c.Param("id")
 
@@ -56,15 +55,14 @@ func (h *Handler) DeleteExhibitionSectionByID(c *gin.Context) {
 	if err != nil {
 		log.Printf("Error deleting exhibitionSection %s: %v", sectionID, err)
 
-		// Check for specific errors and return appropriate responses
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Exhibition not found"})
-		} else {
+		switch {
+		case errors.Is(err, mongo.ErrNoDocuments):
+			c.JSON(http.StatusNotFound, gin.H{"error": "Exhibition section not found"})
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		}
 		return
 	}
 
-	// Return a successful response with no content (HTTP 204 No Content)
 	c.JSON(http.StatusOK, gin.H{"_id": sectionID + " has been deleted."})
 }

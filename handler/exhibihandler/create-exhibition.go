@@ -52,7 +52,7 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 
 //	@Summary		Create a new exhibitionSection
 //	@Description	Create a new exhibitionSection
-//	@Tags			Exhibitions
+//	@Tags			Sections
 //	@Accept			json
 //	@Produce		json
 //	@Param			requestExhibitionSection	body		model.RequestCreateExhibitionSection	true	"ExhibitionSection data to create"

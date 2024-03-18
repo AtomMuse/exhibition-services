@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type IExhibitionRepository interface {
@@ -24,7 +24,20 @@ type IExhibitionRepository interface {
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
 type ExhibitionRepository struct {
-	Collection *mongo.Collection
+	Collection         *mongo.Collection
+	SectionsCollection *mongo.Collection
+}
+
+// NewExhibitionRepository creates a new instance of ExhibitionRepository.
+func NewExhibitionRepository(ctx context.Context, client *mongo.Client, databaseName string) (*ExhibitionRepository, error) {
+	// Specify the collection names
+	collection := client.Database(databaseName).Collection("exhibitions")
+	sectionCollection := client.Database(databaseName).Collection("exhibitionSections")
+
+	return &ExhibitionRepository{
+		Collection:         collection,
+		SectionsCollection: sectionCollection,
+	}, nil
 }
 
 func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
@@ -50,6 +63,7 @@ func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.R
 	return exhibitions, nil
 }
 
+// GetExhibitionByID retrieves an exhibition by its ID along with its sections.
 func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
@@ -57,13 +71,37 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		return nil, fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
 
-	// Define the match stage for the aggregation pipeline
-	matchStage := bson.M{"$match": bson.M{"_id": objectID}}
+	// Define the aggregation pipeline stages
+	pipeline := bson.A{
+		bson.D{{"$lookup", bson.D{
+			{"from", "exhibitionSections"},
+			{"localField", "_id"},
+			{"foreignField", "exhibitionID"},
+			{"as", "exhibitionSections"},
+		}}},
+		bson.D{{"$project", bson.D{
+			{"_id", 1},
+			{"exhibitionName", 1},
+			{"exhibitionDescription", 1},
+			{"thumbnailImg", 1},
+			{"startDate", 1},
+			{"endDate", 1},
+			{"isPublic", 1},
+			{"exhibitionCategories", 1},
+			{"exhibitionTags", 1},
+			{"userId", 1},
+			{"layoutUsed", 1},
+			{"exhibitionSections", 1},
+			{"visitedNumber", 1},
+			{"rooms", 1},
+			{"status", 1},
+		}}},
+		bson.D{{"$match", bson.D{
+			{"_id", objectID}, // Match using the converted ObjectID
+		}}},
+	}
 
-	// Aggregate pipeline
-	pipeline := []bson.M{matchStage}
-
-	// Execute the aggregation
+	// Execute the aggregation for exhibition collection
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("aggregation error: %v", err)
@@ -75,7 +113,7 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		return nil, fmt.Errorf("exhibition not found for ID %s", exhibitionID)
 	}
 
-	// Decode the main document
+	// Decode the main document from exhibition collection
 	var exhibition model.ResponseExhibition
 	if err := cursor.Decode(&exhibition); err != nil {
 		return nil, fmt.Errorf("decoding error: %v", err)

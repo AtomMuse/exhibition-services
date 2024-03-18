@@ -41,7 +41,7 @@ definitions:
         type: string
       contentType:
         type: string
-      exhibitionIs:
+      exhibitionId:
         type: string
       images:
         items:
@@ -58,7 +58,7 @@ definitions:
       title:
         type: string
     required:
-    - exhibitionIs
+    - exhibitionId
     - sectionType
     type: object
   model.LeftColumn:
@@ -374,7 +374,7 @@ paths:
             $ref: '#/definitions/helper.APIError'
       summary: Get all exhibitions sections
       tags:
-      - Exhibitions
+      - Sections
   /api/exhibitionSection/{id}:
     get:
       description: Get exhibition details by ID
@@ -520,6 +520,26 @@ paths:
       summary: Update exhibition by ID
       tags:
       - Exhibitions
+  /api/exhibitions/{id}/sections:
+    get:
+      description: Get Sections By xhibitionID
+      operationId: GetSectionsByExhibitionID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ResponseExhibitionSection'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get Sections By xhibitionID
+      tags:
+      - Sections
   /api/sections:
     post:
       consumes:
@@ -545,7 +565,7 @@ paths:
             $ref: '#/definitions/helper.APIError'
       summary: Create a new exhibitionSection
       tags:
-      - Exhibitions
+      - Sections
   /api/sections/{id}:
     delete:
       description: Delete Section by ID
@@ -569,7 +589,7 @@ paths:
             $ref: '#/definitions/helper.APIError'
       summary: Delete Section by ID
       tags:
-      - Exhibitions
+      - Sections
 schemes:
 - http
 swagger: "2.0"

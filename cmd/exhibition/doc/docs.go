@@ -53,7 +53,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Exhibitions"
+                    "Sections"
                 ],
                 "summary": "Get all exhibitions sections",
                 "operationId": "GetAllExhibitionSections",
@@ -293,6 +293,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/exhibitions/{id}/sections": {
+            "get": {
+                "description": "Get Sections By xhibitionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Get Sections By xhibitionID",
+                "operationId": "GetSectionsByExhibitionID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibitionSection"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/sections": {
             "post": {
                 "description": "Create a new exhibitionSection",
@@ -303,7 +333,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Exhibitions"
+                    "Sections"
                 ],
                 "summary": "Create a new exhibitionSection",
                 "parameters": [
@@ -340,7 +370,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Exhibitions"
+                    "Sections"
                 ],
                 "summary": "Delete Section by ID",
                 "operationId": "DeleteExhibitionSectionByID",
@@ -427,7 +457,7 @@ const docTemplate = `{
         "model.ExhibitionSection": {
             "type": "object",
             "required": [
-                "exhibitionIs",
+                "exhibitionId",
                 "sectionType"
             ],
             "properties": {
@@ -440,7 +470,7 @@ const docTemplate = `{
                 "contentType": {
                     "type": "string"
                 },
-                "exhibitionIs": {
+                "exhibitionId": {
                     "type": "string"
                 },
                 "images": {

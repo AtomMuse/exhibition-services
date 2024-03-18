@@ -23,10 +23,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// @title			Exhibition Service API
-// @version		v0
-// @description	Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-// @schemes		http
+//	@title			Exhibition Service API
+//	@version		v0
+//	@description	Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+//	@schemes		http
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)

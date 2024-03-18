@@ -22,7 +22,7 @@ type ExhibitionSection struct {
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
-	ExhibitionID primitive.ObjectID `bson:"exhibitionId" json:"exhibitionIs" validate:"required"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionId" json:"exhibitionId" validate:"required"`
 }
 
 // LeftColumn represents the structure of the left column in an exhibition section.
