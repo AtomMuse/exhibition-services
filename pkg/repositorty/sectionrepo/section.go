@@ -2,7 +2,6 @@ package sectionrepo
 
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
-	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"context"
 	"fmt"
 
@@ -46,9 +45,6 @@ func (r *SectionRepository) DeleteExhibitionSectionByID(ctx context.Context, sec
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
 
-	// Create an instance of the concrete type that implements IExhibitionRepository
-	exhibitionRepo := &exhibirepo.ExhibitionRepository{Collection: r.Collection}
-
 	// Define the match stage for the aggregation pipeline
 	matchStage := bson.M{"$match": bson.M{"_id": objectID}}
 
@@ -87,7 +83,6 @@ func (r *SectionRepository) DeleteExhibitionSectionByID(ctx context.Context, sec
 	// Check if exactly one document was deleted
 	if deleteResult.DeletedCount == 1 {
 		// Assuming UpdateExhibition takes a context, an ExhibitionID, and an update as arguments
-		err := exhibitionRepo.DeleteExhibitionSectionID(ctx, section.ExhibitionID.Hex(), sectionID)
 		if err != nil {
 			return err
 		}
