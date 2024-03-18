@@ -398,7 +398,7 @@ paths:
             $ref: '#/definitions/helper.APIError'
       summary: Get exhibitionSection by ID
       tags:
-      - Exhibitions
+      - Sections
   /api/exhibitions:
     get:
       description: Get a list of all exhibitions is public

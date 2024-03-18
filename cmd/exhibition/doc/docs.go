@@ -83,7 +83,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Exhibitions"
+                    "Sections"
                 ],
                 "summary": "Get exhibitionSection by ID",
                 "operationId": "GetExhibitionSectionByID",

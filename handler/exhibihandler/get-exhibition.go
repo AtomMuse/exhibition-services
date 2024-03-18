@@ -87,7 +87,7 @@ func (h *Handler) GetExhibitionsIsPublic(c *gin.Context) {
 
 //	@Summary		Get exhibitionSection by ID
 //	@Description	Get exhibition details by ID
-//	@Tags			Exhibitions
+//	@Tags			Sections
 //	@ID				GetExhibitionSectionByID
 //	@Produce		json
 //	@Param			id	path		string	true	"Exhibition Section ID"
