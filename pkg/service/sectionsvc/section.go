@@ -14,6 +14,7 @@ type ISectionServices interface {
 	DeleteExhibitionSectionByID(ctx context.Context, sectionID string) error
 	GetExhibitionSectionByID(ctx context.Context, sectionID string) (*model.ResponseExhibitionSection, error)
 	GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error)
+	GetSectionsByExhibitionID(ctx context.Context, exhibitionID string) ([]model.ExhibitionSection, error)
 }
 
 // SectionServices is the implementation of the IExhibitionSectionServices interface.
@@ -35,4 +36,9 @@ func (service SectionServices) GetExhibitionSectionByID(ctx context.Context, sec
 
 func (service SectionServices) GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error) {
 	return service.Repository.GetAllExhibitionSections(ctx)
+}
+
+// GetSectionsByExhibitionID fetches sections for a given exhibition ID.
+func (service SectionServices) GetSectionsByExhibitionID(ctx context.Context, exhibitionID string) ([]model.ExhibitionSection, error) {
+	return service.Repository.GetSectionsByExhibitionID(ctx, exhibitionID)
 }

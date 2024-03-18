@@ -129,3 +129,19 @@ func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
 	// Return the exhibition details
 	c.JSON(http.StatusOK, exhibitionSections)
 }
+
+// GetSectionsByExhibitionID is the handler function for the GET /api/exhibitions/:id/sections endpoint
+func (h *Handler) GetSectionsByExhibitionID(c *gin.Context) {
+	// Extract the exhibition ID from the request
+	exhibitionID := c.Param("id")
+
+	// Call the service to get sections by exhibition ID
+	sections, err := h.SectionService.GetSectionsByExhibitionID(c.Request.Context(), exhibitionID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the sections as JSON response
+	c.JSON(http.StatusOK, sections)
+}

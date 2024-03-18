@@ -101,6 +101,9 @@ func main() {
 		api.GET("/all-sections/", func(c *gin.Context) {
 			handlerSection.GetAllExhibitionSections(c)
 		})
+		api.GET("/exhibitions/:id/sections", func(c *gin.Context) {
+			handlerSection.GetSectionsByExhibitionID(c)
+		})
 	}
 
 	log.Println("Server started on :8080")

@@ -16,6 +16,7 @@ type ISectionRepository interface {
 	DeleteExhibitionSectionByID(ctx context.Context, sectionID string) error
 	GetExhibitionSectionByID(ctx context.Context, sectionID string) (*model.ResponseExhibitionSection, error)
 	GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error)
+	GetSectionsByExhibitionID(ctx context.Context, exhibitionID string) ([]model.ExhibitionSection, error)
 }
 
 // SectionRepository is the MongoDB implementation of the Repository interface.
@@ -155,4 +156,29 @@ func (r *SectionRepository) GetAllExhibitionSections(ctx context.Context) ([]mod
 	}
 
 	return exhibitionSections, nil
+}
+
+// GetSectionsByExhibitionID fetches sections for a given exhibition ID from MongoDB.
+func (r *SectionRepository) GetSectionsByExhibitionID(ctx context.Context, exhibitionID string) ([]model.ExhibitionSection, error) {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+	cursor, err := r.Collection.Find(ctx, bson.M{"exhibitionID": objectID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var sections []model.ExhibitionSection
+	for cursor.Next(ctx) {
+		var section model.ExhibitionSection
+		if err := cursor.Decode(&section); err != nil {
+			return nil, err
+		}
+		sections = append(sections, section)
+	}
+
+	return sections, nil
 }
