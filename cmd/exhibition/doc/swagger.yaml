@@ -198,6 +198,32 @@ definitions:
     required:
     - status
     type: object
+  model.RequestUpdateExhibitionSection:
+    properties:
+      background:
+        type: string
+      contentType:
+        type: string
+      exhibitionID:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      leftCol:
+        $ref: '#/definitions/model.LeftColumn'
+      rightCol:
+        $ref: '#/definitions/model.RightColumn'
+      sectionType:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - exhibitionID
+    - sectionType
+    type: object
   model.ResponseExhibition:
     properties:
       _id:
@@ -335,73 +361,9 @@ info:
   title: Exhibition Service API
   version: v0
 paths:
-  /api/all-exhibitions:
-    get:
-      description: Get a list of all exhibitions
-      operationId: GetAllExhibitions
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.ResponseExhibition'
-            type: array
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/helper.APIError'
-      summary: Get all exhibitions
-      tags:
-      - Exhibitions
-  /api/all-sections:
-    get:
-      description: Get a list of all exhibition sections
-      operationId: GetAllExhibitionSections
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.ResponseExhibitionSection'
-            type: array
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/helper.APIError'
-      summary: Get all exhibitions sections
-      tags:
-      - Sections
-  /api/exhibitionSection/{id}:
-    get:
-      description: Get exhibition details by ID
-      operationId: GetExhibitionSectionByID
-      parameters:
-      - description: Exhibition Section ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ResponseExhibitionSection'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/helper.APIError'
-      summary: Get exhibitionSection by ID
-      tags:
-      - Sections
   /api/exhibitions:
     get:
-      description: Get a list of all exhibitions is public
+      description: Get a list of all exhibitions data is public only
       operationId: GetExhibitionsIsPublic
       produces:
       - application/json
@@ -422,7 +384,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new exhibition
+      description: Create a new exhibition data
       parameters:
       - description: Exhibition data to create
         in: body
@@ -446,7 +408,7 @@ paths:
       - Exhibitions
   /api/exhibitions/{id}:
     delete:
-      description: Delete exhibition by ID
+      description: Delete exhibition data by exhibitionID
       operationId: DeleteExhibition
       parameters:
       - description: Exhibition ID
@@ -469,7 +431,7 @@ paths:
       tags:
       - Exhibitions
     get:
-      description: Get exhibition details by ID
+      description: Get exhibition data by exhibitionID
       operationId: GetExhibitionByID
       parameters:
       - description: Exhibition ID
@@ -492,7 +454,7 @@ paths:
       tags:
       - Exhibitions
     put:
-      description: Update exhibition details by ID
+      description: Update exhibition data by exhibitionID
       operationId: UpdateExhibition
       parameters:
       - description: Exhibition ID
@@ -522,7 +484,7 @@ paths:
       - Exhibitions
   /api/exhibitions/{id}/sections:
     get:
-      description: Get Sections By xhibitionID
+      description: Get Sections By exhibitionID
       operationId: GetSectionsByExhibitionID
       produces:
       - application/json
@@ -537,14 +499,34 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
-      summary: Get Sections By xhibitionID
+      summary: Get Sections By exhibitionID
       tags:
       - Sections
+  /api/exhibitions/all:
+    get:
+      description: Get a list of all exhibitions data
+      operationId: GetAllExhibitions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ResponseExhibition'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get all exhibitions
+      tags:
+      - Exhibitions
   /api/sections:
     post:
       consumes:
       - application/json
-      description: Create a new exhibitionSection
+      description: Create a new exhibitionSection data
       parameters:
       - description: ExhibitionSection data to create
         in: body
@@ -568,7 +550,7 @@ paths:
       - Sections
   /api/sections/{id}:
     delete:
-      description: Delete Section by ID
+      description: Delete Section data by sectionID
       operationId: DeleteExhibitionSectionByID
       parameters:
       - description: Section ID
@@ -588,6 +570,78 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       summary: Delete Section by ID
+      tags:
+      - Sections
+    get:
+      description: Get exhibition data by sectionID
+      operationId: GetExhibitionSectionByID
+      parameters:
+      - description: Exhibition Section ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibitionSection'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get exhibitionSection by ID
+      tags:
+      - Sections
+    put:
+      description: Update exhibitionSection data by sectionID
+      operationId: UpdateExhibitionSection
+      parameters:
+      - description: ExhibitionSection ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ExhibitionSection data to update
+        in: body
+        name: updateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.RequestUpdateExhibitionSection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Update exhibitionSection by sectionID
+      tags:
+      - Sections
+  /api/sections/all:
+    get:
+      description: Get a list of all exhibition sections data
+      operationId: GetAllExhibitionSections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ResponseExhibitionSection'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Get all exhibitions sections
       tags:
       - Sections
 schemes:

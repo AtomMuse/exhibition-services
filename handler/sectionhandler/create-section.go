@@ -1,7 +1,6 @@
-package exhibihandler
+package sectionhandler
 
 import (
-	_ "atommuse/backend/exhibition-service/pkg/helper"
 	"atommuse/backend/exhibition-service/pkg/model"
 	"fmt"
 	"net/http"
@@ -10,27 +9,27 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-//	@Summary		Create a new exhibition
-//	@Description	Create a new exhibition data
-//	@Tags			Exhibitions
+//	@Summary		Create a new exhibitionSection
+//	@Description	Create a new exhibitionSection data
+//	@Tags			Sections
 //	@Accept			json
 //	@Produce		json
-//	@Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
-//	@Success		201					{object}	model.ResponseGetExhibitionId	"Success"
-//	@Failure		400					{object}	helper.APIError					"Invalid request body"
-//	@Router			/api/exhibitions [post]
-func (h *Handler) CreateExhibition(c *gin.Context) {
-	var requestExhibition model.RequestCreateExhibition
+//	@Param			requestExhibitionSection	body		model.RequestCreateExhibitionSection	true	"ExhibitionSection data to create"
+//	@Success		201							{object}	model.ResponseGetExhibitionSectionId	"Success"
+//	@Failure		400							{object}	helper.APIError							"Invalid request body"
+//	@Router			/api/sections [post]
+func (h *Handler) CreateExhibitionSection(c *gin.Context) {
+	var requestExhibitionSection model.RequestCreateExhibitionSection
 	var validate = validator.New()
 
 	// Parse request body
-	if err := c.BindJSON(&requestExhibition); err != nil {
+	if err := c.BindJSON(&requestExhibitionSection); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Invalid request body"})
 		return
 	}
 
 	// Validate the request body
-	if err := validate.Struct(requestExhibition); err != nil {
+	if err := validate.Struct(requestExhibitionSection); err != nil {
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, fmt.Sprintf("%s %s", err.Field(), err.Tag()))
@@ -40,7 +39,7 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	}
 
 	// Call use case to create exhibition
-	objectID, err := h.ExhibitionService.CreateExhibition(c.Request.Context(), &requestExhibition)
+	objectID, err := h.SectionService.CreateExhibitionSection(c.Request.Context(), &requestExhibitionSection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "Failed to create exhibition"})
 		return

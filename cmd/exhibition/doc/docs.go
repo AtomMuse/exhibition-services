@@ -16,105 +16,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/all-exhibitions": {
-            "get": {
-                "description": "Get a list of all exhibitions",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Exhibitions"
-                ],
-                "summary": "Get all exhibitions",
-                "operationId": "GetAllExhibitions",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.ResponseExhibition"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/helper.APIError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/all-sections": {
-            "get": {
-                "description": "Get a list of all exhibition sections",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Sections"
-                ],
-                "summary": "Get all exhibitions sections",
-                "operationId": "GetAllExhibitionSections",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.ResponseExhibitionSection"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/helper.APIError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/exhibitionSection/{id}": {
-            "get": {
-                "description": "Get exhibition details by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Sections"
-                ],
-                "summary": "Get exhibitionSection by ID",
-                "operationId": "GetExhibitionSectionByID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Exhibition Section ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ResponseExhibitionSection"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/helper.APIError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/exhibitions": {
             "get": {
-                "description": "Get a list of all exhibitions is public",
+                "description": "Get a list of all exhibitions data is public only",
                 "produces": [
                     "application/json"
                 ],
@@ -142,7 +46,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new exhibition",
+                "description": "Create a new exhibition data",
                 "consumes": [
                     "application/json"
                 ],
@@ -180,9 +84,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/exhibitions/all": {
+            "get": {
+                "description": "Get a list of all exhibitions data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get all exhibitions",
+                "operationId": "GetAllExhibitions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibition"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitions/{id}": {
             "get": {
-                "description": "Get exhibition details by ID",
+                "description": "Get exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
                 ],
@@ -216,7 +150,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update exhibition details by ID",
+                "description": "Update exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
                 ],
@@ -259,7 +193,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete exhibition by ID",
+                "description": "Delete exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
                 ],
@@ -295,14 +229,14 @@ const docTemplate = `{
         },
         "/api/exhibitions/{id}/sections": {
             "get": {
-                "description": "Get Sections By xhibitionID",
+                "description": "Get Sections By exhibitionID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Sections"
                 ],
-                "summary": "Get Sections By xhibitionID",
+                "summary": "Get Sections By exhibitionID",
                 "operationId": "GetSectionsByExhibitionID",
                 "responses": {
                     "200": {
@@ -325,7 +259,7 @@ const docTemplate = `{
         },
         "/api/sections": {
             "post": {
-                "description": "Create a new exhibitionSection",
+                "description": "Create a new exhibitionSection data",
                 "consumes": [
                     "application/json"
                 ],
@@ -363,9 +297,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/sections/all": {
+            "get": {
+                "description": "Get a list of all exhibition sections data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Get all exhibitions sections",
+                "operationId": "GetAllExhibitionSections",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibitionSection"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/sections/{id}": {
+            "get": {
+                "description": "Get exhibition data by sectionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Get exhibitionSection by ID",
+                "operationId": "GetExhibitionSectionByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition Section ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibitionSection"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update exhibitionSection data by sectionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Update exhibitionSection by sectionID",
+                "operationId": "UpdateExhibitionSection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ExhibitionSection ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ExhibitionSection data to update",
+                        "name": "updateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RequestUpdateExhibitionSection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            },
             "delete": {
-                "description": "Delete Section by ID",
+                "description": "Delete Section data by sectionID",
                 "produces": [
                     "application/json"
                 ],
@@ -697,6 +738,45 @@ const docTemplate = `{
                 },
                 "visitedNumber": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.RequestUpdateExhibitionSection": {
+            "type": "object",
+            "required": [
+                "exhibitionID",
+                "sectionType"
+            ],
+            "properties": {
+                "background": {
+                    "type": "string"
+                },
+                "contentType": {
+                    "type": "string"
+                },
+                "exhibitionID": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "leftCol": {
+                    "$ref": "#/definitions/model.LeftColumn"
+                },
+                "rightCol": {
+                    "$ref": "#/definitions/model.RightColumn"
+                },
+                "sectionType": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

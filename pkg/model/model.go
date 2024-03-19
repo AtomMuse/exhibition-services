@@ -165,3 +165,15 @@ type ResponseExhibitionSection struct {
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
 }
+
+type RequestUpdateExhibitionSection struct {
+	SectionType  string             `bson:"sectionType,omitempty" json:"sectionType,omitempty" validate:"required"`
+	ContentType  string             `bson:"contentType,omitempty" json:"contentType,omitempty" `
+	Background   string             `bson:"background,omitempty" json:"background,omitempty"`
+	Title        string             `bson:"title,omitempty" json:"title,omitempty"`
+	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
+	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
+	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
+	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
+}

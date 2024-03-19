@@ -3,11 +3,12 @@ package sectionrepo
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
 	"context"
+	"errors"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type ISectionRepository interface {
@@ -16,6 +17,7 @@ type ISectionRepository interface {
 	GetExhibitionSectionByID(ctx context.Context, sectionID string) (*model.ResponseExhibitionSection, error)
 	GetAllExhibitionSections(ctx context.Context) ([]model.ResponseExhibitionSection, error)
 	GetSectionsByExhibitionID(ctx context.Context, exhibitionID string) ([]model.ExhibitionSection, error)
+	UpdateExhibitionSection(ctx context.Context, sectionID string, updatedSection *model.RequestUpdateExhibitionSection) (*primitive.ObjectID, error)
 }
 
 // SectionRepository is the MongoDB implementation of the Repository interface.
@@ -176,4 +178,59 @@ func (r *SectionRepository) GetSectionsByExhibitionID(ctx context.Context, exhib
 	}
 
 	return sections, nil
+}
+
+func (r *SectionRepository) UpdateExhibitionSection(ctx context.Context, sectionID string, updatedSection *model.RequestUpdateExhibitionSection) (*primitive.ObjectID, error) {
+	// Convert sectionID string to ObjectID
+	objectID, err := primitive.ObjectIDFromHex(sectionID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Define filter to identify the section to update
+	filter := bson.M{"_id": objectID}
+
+	// Define update operation
+	updateDoc := bson.M{"$set": bson.M{}}
+
+	// Update only non-empty fields
+	if updatedSection.SectionType != "" {
+		updateDoc["$set"].(bson.M)["sectionType"] = updatedSection.SectionType
+	}
+	if updatedSection.ContentType != "" {
+		updateDoc["$set"].(bson.M)["contentType"] = updatedSection.ContentType
+	}
+	if updatedSection.Background != "" {
+		updateDoc["$set"].(bson.M)["background"] = updatedSection.Background
+	}
+	if updatedSection.Title != "" {
+		updateDoc["$set"].(bson.M)["title"] = updatedSection.Title
+	}
+	if updatedSection.Text != "" {
+		updateDoc["$set"].(bson.M)["text"] = updatedSection.Text
+	}
+	if updatedSection.LeftCol != (model.LeftColumn{}) {
+		updateDoc["$set"].(bson.M)["leftCol"] = updatedSection.LeftCol
+	}
+	if updatedSection.RightCol != (model.RightColumn{}) {
+		updateDoc["$set"].(bson.M)["rightCol"] = updatedSection.RightCol
+	}
+	if len(updatedSection.Images) > 0 {
+		updateDoc["$set"].(bson.M)["images"] = updatedSection.Images
+	}
+	if !updatedSection.ExhibitionID.IsZero() {
+		updateDoc["$set"].(bson.M)["exhibitionID"] = updatedSection.ExhibitionID
+	}
+
+	// Perform update operation
+	result, err := r.Collection.UpdateOne(ctx, filter, updateDoc)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.ModifiedCount == 0 {
+		return nil, errors.New("no exhibition section updated")
+	}
+
+	return &objectID, nil
 }

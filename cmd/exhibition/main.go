@@ -2,6 +2,7 @@ package main
 
 import (
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
+	"atommuse/backend/exhibition-service/handler/sectionhandler"
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"atommuse/backend/exhibition-service/pkg/repositorty/sectionrepo"
 	"atommuse/backend/exhibition-service/pkg/service/exhibisvc"
@@ -51,12 +52,12 @@ func main() {
 	dbCollection := client.Database("atommuse").Collection("exhibitions")
 	repo := &exhibirepo.ExhibitionRepository{Collection: dbCollection}
 	service := &exhibisvc.ExhibitionServices{Repository: repo}
-	handler := &exhibihandler.Handler{ExhibitionService: service}
+	handlerExhibition := &exhibihandler.Handler{ExhibitionService: service}
 
 	dbCollectionSection := client.Database("atommuse").Collection("exhibitionSections")
 	repoSection := &sectionrepo.SectionRepository{Collection: dbCollectionSection}
 	serviceSection := &sectionsvc.SectionServices{Repository: repoSection}
-	handlerSection := &exhibihandler.Handler{SectionService: serviceSection}
+	handlerSection := &sectionhandler.Handler{SectionService: serviceSection}
 
 	// Add CORS middleware
 	config := cors.DefaultConfig()
@@ -71,23 +72,23 @@ func main() {
 
 	api := router.Group("/api")
 	{
-		api.GET("/all-exhibitions", func(c *gin.Context) {
-			handler.GetAllExhibitions(c)
+		api.GET("/exhibitions/all", func(c *gin.Context) {
+			handlerExhibition.GetAllExhibitions(c)
 		})
 		api.GET("/exhibitions/:id", func(c *gin.Context) {
-			handler.GetExhibitionByID(c)
+			handlerExhibition.GetExhibitionByID(c)
 		})
 		api.GET("/exhibitions", func(c *gin.Context) {
-			handler.GetExhibitionsIsPublic(c)
+			handlerExhibition.GetExhibitionsIsPublic(c)
 		})
 		api.POST("/exhibitions", func(c *gin.Context) {
-			handler.CreateExhibition(c)
+			handlerExhibition.CreateExhibition(c)
 		})
 		api.DELETE("/exhibitions/:id", func(c *gin.Context) {
-			handler.DeleteExhibition(c)
+			handlerExhibition.DeleteExhibition(c)
 		})
 		api.PUT("/exhibitions/:id", func(c *gin.Context) {
-			handler.UpdateExhibition(c)
+			handlerExhibition.UpdateExhibition(c)
 		})
 		api.POST("/sections", func(c *gin.Context) {
 			handlerSection.CreateExhibitionSection(c)
@@ -95,14 +96,17 @@ func main() {
 		api.DELETE("/sections/:id", func(c *gin.Context) {
 			handlerSection.DeleteExhibitionSectionByID(c)
 		})
-		api.GET("/exhibitionSection/:id", func(c *gin.Context) {
+		api.GET("/sections/:id", func(c *gin.Context) {
 			handlerSection.GetExhibitionSectionByID(c)
 		})
-		api.GET("/all-sections/", func(c *gin.Context) {
+		api.GET("/sections/all", func(c *gin.Context) {
 			handlerSection.GetAllExhibitionSections(c)
 		})
 		api.GET("/exhibitions/:id/sections", func(c *gin.Context) {
 			handlerSection.GetSectionsByExhibitionID(c)
+		})
+		api.PUT("/sections/:id", func(c *gin.Context) {
+			handlerSection.UpdateExhibitionSection(c)
 		})
 	}
 

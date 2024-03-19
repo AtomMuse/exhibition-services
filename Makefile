@@ -7,4 +7,4 @@ test-coverage:
 	go tool cover -html=coverage/cover.out
 
 gen-swag:
-	swag init -d ./cmd/exhibition,./handler/exhibihandler -o ./cmd/exhibition/doc --pd
+	swag init -d ./cmd/exhibition,./handler/exhibihandler,./handler/sectionhandler -o ./cmd/exhibition/doc --pd
