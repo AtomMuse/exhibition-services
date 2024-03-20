@@ -149,7 +149,7 @@ type RequestCreateExhibitionSection struct {
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
-	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
+	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty"`
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
 }
 

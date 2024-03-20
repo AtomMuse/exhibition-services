@@ -24,6 +24,7 @@ func (h *Handler) CreateExhibitionSection(c *gin.Context) {
 
 	// Parse request body
 	if err := c.BindJSON(&requestExhibitionSection); err != nil {
+		fmt.Println("Error binding JSON:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Invalid request body"})
 		return
 	}
