@@ -113,7 +113,7 @@ type RequestCreateExhibition struct {
 	ThumbnailImg          string   `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
 	StartDate             string   `bson:"startDate" json:"startDate" validate:"required" error:"StartDate is required"`
 	EndDate               string   `bson:"endDate" json:"endDate" validate:"required" error:"EndDate is required and must be greater than StartDate"`
-	IsPublic              bool     `bson:"isPublic" json:"isPublic" validate:"required" error:"IsPublic is required"`
+	IsPublic              *bool    `bson:"isPublic" json:"isPublic" validate:"required" error:"IsPublic is required"`
 	ExhibitionCategories  []string `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
 	ExhibitionTags        []string `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
 	UserID                UserID   `bson:"userId" json:"userId" validate:"required" error:"UserID is required"`

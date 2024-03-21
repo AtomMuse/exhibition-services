@@ -199,24 +199,38 @@ func (r *SectionRepository) UpdateExhibitionSection(ctx context.Context, section
 	}
 	if updatedSection.ContentType != "" {
 		updateDoc["$set"].(bson.M)["contentType"] = updatedSection.ContentType
+	} else {
+		updateDoc["$unset"] = bson.M{"contentType": ""}
 	}
 	if updatedSection.Background != "" {
 		updateDoc["$set"].(bson.M)["background"] = updatedSection.Background
+	} else {
+		updateDoc["$unset"] = bson.M{"background": ""}
 	}
 	if updatedSection.Title != "" {
 		updateDoc["$set"].(bson.M)["title"] = updatedSection.Title
+	} else {
+		updateDoc["$unset"] = bson.M{"title": ""}
 	}
 	if updatedSection.Text != "" {
 		updateDoc["$set"].(bson.M)["text"] = updatedSection.Text
+	} else {
+		updateDoc["$unset"] = bson.M{"text": ""}
 	}
 	if updatedSection.LeftCol != (model.LeftColumn{}) {
 		updateDoc["$set"].(bson.M)["leftCol"] = updatedSection.LeftCol
+	} else {
+		updateDoc["$unset"] = bson.M{"leftCol": ""}
 	}
 	if updatedSection.RightCol != (model.RightColumn{}) {
 		updateDoc["$set"].(bson.M)["rightCol"] = updatedSection.RightCol
+	} else {
+		updateDoc["$unset"] = bson.M{"rightCol": ""}
 	}
 	if len(updatedSection.Images) > 0 {
 		updateDoc["$set"].(bson.M)["images"] = updatedSection.Images
+	} else {
+		updateDoc["$unset"] = bson.M{"images": ""}
 	}
 	if !updatedSection.ExhibitionID.IsZero() {
 		updateDoc["$set"].(bson.M)["exhibitionID"] = updatedSection.ExhibitionID

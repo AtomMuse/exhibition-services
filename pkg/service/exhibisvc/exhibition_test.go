@@ -107,12 +107,15 @@ func TestCreateExhibition(t *testing.T) {
 		ThumbnailImg:          "",
 		StartDate:             "",
 		EndDate:               "",
-		IsPublic:              false,
+		IsPublic:              &[]bool{false}[0],
 		ExhibitionCategories:  []string{},
 		ExhibitionTags:        []string{},
 		UserID:                model.UserID{},
 		LayoutUsed:            "",
 		ExhibitionSectionsID:  []string{},
+		VisitedNumber:         0,
+		Room:                  []model.Room{},
+		Status:                "",
 	}
 	mockRepo.On("CreateExhibition", mock.Anything, mockRequestExhibition).Return(&mockExhibitionID, nil)
 
