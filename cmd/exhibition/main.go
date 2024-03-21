@@ -108,6 +108,13 @@ func main() {
 		api.PUT("/sections/:id", func(c *gin.Context) {
 			handlerSection.UpdateExhibitionSection(c)
 		})
+		api.PUT("/exhibitions/:id/like", func(c *gin.Context) {
+			handlerExhibition.LikeExhibition(c)
+		})
+		api.PUT("/exhibitions/:id/unlike", func(c *gin.Context) {
+			handlerExhibition.UnlikeExhibition(c)
+		})
+
 	}
 
 	log.Println("Server started on :8080")

@@ -107,6 +107,8 @@ definitions:
         type: boolean
       layoutUsed:
         type: string
+      likeCount:
+        type: integer
       rooms:
         items:
           $ref: '#/definitions/model.Room'
@@ -250,6 +252,8 @@ definitions:
         type: boolean
       layoutUsed:
         type: string
+      likeCount:
+        type: integer
       rooms:
         items:
           $ref: '#/definitions/model.Room'
@@ -482,6 +486,30 @@ paths:
       summary: Update exhibition by ID
       tags:
       - Exhibitions
+  /api/exhibitions/{id}/like:
+    put:
+      description: Like exhibition by exhibitionID
+      operationId: LikeExhibition
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Like exhibition by ID
+      tags:
+      - Like
   /api/exhibitions/{id}/sections:
     get:
       description: Get Sections By exhibitionID
@@ -502,6 +530,30 @@ paths:
       summary: Get Sections By exhibitionID
       tags:
       - Sections
+  /api/exhibitions/{id}/unlike:
+    put:
+      description: unlike exhibition by exhibitionID
+      operationId: UnlikeExhibition
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      summary: Unlike exhibition by ID
+      tags:
+      - Unlike
   /api/exhibitions/all:
     get:
       description: Get a list of all exhibitions data

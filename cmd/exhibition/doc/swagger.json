@@ -221,6 +221,42 @@
                 }
             }
         },
+        "/api/exhibitions/{id}/like": {
+            "put": {
+                "description": "Like exhibition by exhibitionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "summary": "Like exhibition by ID",
+                "operationId": "LikeExhibition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitions/{id}/sections": {
             "get": {
                 "description": "Get Sections By exhibitionID",
@@ -240,6 +276,42 @@
                             "items": {
                                 "$ref": "#/definitions/model.ResponseExhibitionSection"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exhibitions/{id}/unlike": {
+            "put": {
+                "description": "unlike exhibition by exhibitionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Unlike"
+                ],
+                "summary": "Unlike exhibition by ID",
+                "operationId": "UnlikeExhibition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
                         }
                     },
                     "500": {
@@ -611,6 +683,9 @@
                 "layoutUsed": {
                     "type": "string"
                 },
+                "likeCount": {
+                    "type": "integer"
+                },
                 "rooms": {
                     "type": "array",
                     "items": {
@@ -819,6 +894,9 @@
                 },
                 "layoutUsed": {
                     "type": "string"
+                },
+                "likeCount": {
+                    "type": "integer"
                 },
                 "rooms": {
                     "type": "array",

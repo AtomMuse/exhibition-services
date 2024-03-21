@@ -20,6 +20,8 @@ type IExhibitionRepository interface {
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
+	LikeExhibition(ctx context.Context, exhibitionID string) error
+	UnlikeExhibition(ctx context.Context, exhibitionID string) error
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -93,6 +95,7 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 			{"layoutUsed", 1},
 			{"exhibitionSections", 1},
 			{"visitedNumber", 1},
+			{"likeCount", 1},
 			{"rooms", 1},
 			{"status", 1},
 		}}},
@@ -319,5 +322,37 @@ func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibiti
 		return fmt.Errorf("error updating visited number: %v", err)
 	}
 
+	return nil
+}
+
+func (r *ExhibitionRepository) LikeExhibition(ctx context.Context, exhibitionID string) error {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": 1}})
+	if err != nil {
+		return fmt.Errorf("failed to update like count: %v", err)
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("no documents updated")
+	}
+	return nil
+}
+
+func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionID string) error {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": -1}})
+	if err != nil {
+		return fmt.Errorf("failed to update like count: %v", err)
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("no documents updated")
+	}
 	return nil
 }
