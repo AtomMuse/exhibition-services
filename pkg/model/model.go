@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -179,4 +180,14 @@ type RequestUpdateExhibitionSection struct {
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
+}
+
+// jwtCustomClaims represents the custom claims of a JWT token
+type JwtCustomClaims struct {
+	Role         string `json:"role"`
+	UserName     string `json:"username" bson:"username"`
+	FirstName    string `json:"firstname" bson:"firstname"`
+	LastName     string `json:"lastname" bson:"lastname"`
+	ProfileImage string `json:"profile,omitempty" bson:"profile,omitempty"`
+	jwt.StandardClaims
 }
