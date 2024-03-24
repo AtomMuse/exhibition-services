@@ -22,15 +22,20 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// @title			Exhibition Service API
-// @version		v0
-// @description	Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-// @schemes		http
+//	@title						Exhibition Service API
+//	@version					v0
+//	@description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+//	@schemes					http
+//	@securityDefinitions.apikey	BearerAuthorization HTTP header using the Bearer scheme.
+//	@in							header
+//	@name						Authorization
 func main() {
 	initializeEnvironment()
 
@@ -51,6 +56,9 @@ func main() {
 	}()
 
 	router := setupRouter(client)
+
+	url := ginSwagger.URL("/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// Start server
 	log.Println("Server started on :8080")

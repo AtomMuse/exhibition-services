@@ -12,6 +12,11 @@
     "paths": {
         "/api/exhibitions": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all exhibitions data is public only",
                 "produces": [
                     "application/json"
@@ -40,6 +45,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new exhibition data",
                 "consumes": [
                     "application/json"
@@ -51,6 +61,7 @@
                     "Exhibitions"
                 ],
                 "summary": "Create a new exhibition",
+                "operationId": "CreateExhibition",
                 "parameters": [
                     {
                         "description": "Exhibition data to create",
@@ -80,6 +91,11 @@
         },
         "/api/exhibitions/all": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all exhibitions data",
                 "produces": [
                     "application/json"
@@ -110,6 +126,11 @@
         },
         "/api/exhibitions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
@@ -144,6 +165,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
@@ -187,6 +213,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
@@ -223,6 +254,11 @@
         },
         "/api/exhibitions/{id}/like": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Like exhibition by exhibitionID",
                 "produces": [
                     "application/json"
@@ -259,6 +295,11 @@
         },
         "/api/exhibitions/{id}/sections": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get Sections By exhibitionID",
                 "produces": [
                     "application/json"
@@ -289,6 +330,11 @@
         },
         "/api/exhibitions/{id}/unlike": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "unlike exhibition by exhibitionID",
                 "produces": [
                     "application/json"
@@ -325,6 +371,11 @@
         },
         "/api/sections": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new exhibitionSection data",
                 "consumes": [
                     "application/json"
@@ -336,6 +387,7 @@
                     "Sections"
                 ],
                 "summary": "Create a new exhibitionSection",
+                "operationId": "CreateExhibitionSection",
                 "parameters": [
                     {
                         "description": "ExhibitionSection data to create",
@@ -365,6 +417,11 @@
         },
         "/api/sections/all": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all exhibition sections data",
                 "produces": [
                     "application/json"
@@ -395,6 +452,11 @@
         },
         "/api/sections/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get exhibition data by sectionID",
                 "produces": [
                     "application/json"
@@ -429,6 +491,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update exhibitionSection data by sectionID",
                 "produces": [
                     "application/json"
@@ -472,6 +539,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete Section data by sectionID",
                 "produces": [
                     "application/json"
@@ -1045,8 +1117,18 @@
                 },
                 "userId": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuthorization HTTP header using the Bearer scheme.": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

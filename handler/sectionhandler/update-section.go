@@ -12,6 +12,7 @@ import (
 //	@Summary		Update exhibitionSection by sectionID
 //	@Description	Update exhibitionSection data by sectionID
 //	@Tags			Sections
+//	@Security		ApiKeyAuth
 //	@ID				UpdateExhibitionSection
 //	@Produce		json
 //	@Param			id				path		string									true	"ExhibitionSection ID"

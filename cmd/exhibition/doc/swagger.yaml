@@ -355,6 +355,8 @@ definitions:
         type: string
       userId:
         type: integer
+      username:
+        type: string
     required:
     - userId
     type: object
@@ -382,6 +384,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get all exhibitions is public
       tags:
       - Exhibitions
@@ -389,6 +393,7 @@ paths:
       consumes:
       - application/json
       description: Create a new exhibition data
+      operationId: CreateExhibition
       parameters:
       - description: Exhibition data to create
         in: body
@@ -407,6 +412,8 @@ paths:
           description: Invalid request body
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new exhibition
       tags:
       - Exhibitions
@@ -431,6 +438,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Delete exhibition by ID
       tags:
       - Exhibitions
@@ -454,6 +463,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get exhibition by ID
       tags:
       - Exhibitions
@@ -483,6 +494,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Update exhibition by ID
       tags:
       - Exhibitions
@@ -507,6 +520,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Like exhibition by ID
       tags:
       - Like
@@ -527,6 +542,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get Sections By exhibitionID
       tags:
       - Sections
@@ -551,6 +568,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Unlike exhibition by ID
       tags:
       - Unlike
@@ -571,6 +590,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get all exhibitions
       tags:
       - Exhibitions
@@ -579,6 +600,7 @@ paths:
       consumes:
       - application/json
       description: Create a new exhibitionSection data
+      operationId: CreateExhibitionSection
       parameters:
       - description: ExhibitionSection data to create
         in: body
@@ -597,6 +619,8 @@ paths:
           description: Invalid request body
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new exhibitionSection
       tags:
       - Sections
@@ -621,6 +645,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Delete Section by ID
       tags:
       - Sections
@@ -644,6 +670,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get exhibitionSection by ID
       tags:
       - Sections
@@ -673,6 +701,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Update exhibitionSection by sectionID
       tags:
       - Sections
@@ -693,9 +723,16 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - ApiKeyAuth: []
       summary: Get all exhibitions sections
       tags:
       - Sections
 schemes:
 - http
+securityDefinitions:
+  BearerAuthorization HTTP header using the Bearer scheme.:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

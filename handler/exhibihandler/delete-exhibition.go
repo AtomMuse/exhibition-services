@@ -12,6 +12,7 @@ import (
 //	@Summary		Delete exhibition by ID
 //	@Description	Delete exhibition data by exhibitionID
 //	@Tags			Exhibitions
+//	@Security		ApiKeyAuth
 //	@ID				DeleteExhibition
 //	@Produce		json
 //	@Param			id	path		string							true	"Exhibition ID"

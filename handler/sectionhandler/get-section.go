@@ -10,6 +10,9 @@ import (
 //	@Summary		Get exhibitionSection by ID
 //	@Description	Get exhibition data by sectionID
 //	@Tags			Sections
+//
+//	@Security		ApiKeyAuth
+//
 //	@ID				GetExhibitionSectionByID
 //	@Produce		json
 //	@Param			id	path		string	true	"Exhibition Section ID"
@@ -34,6 +37,9 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 //	@Summary		Get all exhibitions sections
 //	@Description	Get a list of all exhibition sections data
 //	@Tags			Sections
+//
+//	@Security		ApiKeyAuth
+//
 //	@ID				GetAllExhibitionSections
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
@@ -54,6 +60,7 @@ func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
 //	@Summary		Get Sections By exhibitionID
 //	@Description	Get Sections By exhibitionID
 //	@Tags			Sections
+//	@Security		ApiKeyAuth
 //	@ID				GetSectionsByExhibitionID
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
