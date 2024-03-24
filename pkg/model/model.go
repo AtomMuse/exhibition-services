@@ -9,6 +9,7 @@ type UserID struct {
 	UserID    int    `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
 	FirstName string `bson:"firstName,omitempty" json:"firstName,omitempty"`
 	LastName  string `bson:"lastName,omitempty" json:"lastName,omitempty"`
+	Username  string `bson:"username,omitempty" json:"username,omitempty"`
 }
 
 // ExhibitionSection represents the structure of an exhibition section.
