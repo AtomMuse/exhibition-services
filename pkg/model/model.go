@@ -21,14 +21,14 @@ type ExhibitionSection struct {
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
-	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
+	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
 	ExhibitionID primitive.ObjectID `bson:"exhibitionId" json:"exhibitionId" validate:"required"`
 }
 
 // LeftColumn represents the structure of the left column in an exhibition section.
 type LeftColumn struct {
 	ContentType      string `bson:"contentType,omitempty" json:"contentType,omitempty" `
-	Image            string `bson:"image,omitempty" json:"image,omitempty" validate:"omitempty,url"`
+	Image            string `bson:"image,omitempty" json:"image,omitempty" `
 	ImageDescription string `bson:"imageDescription,omitempty" json:"imageDescription,omitempty"`
 	Title            string `bson:"title,omitempty" json:"title,omitempty"`
 	Text             string `bson:"text,omitempty" json:"text,omitempty"`
@@ -164,7 +164,7 @@ type ResponseExhibitionSection struct {
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
-	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
+	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
 }
 
@@ -176,6 +176,6 @@ type RequestUpdateExhibitionSection struct {
 	Text         string             `bson:"text,omitempty" json:"text,omitempty"`
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
-	Images       []string           `bson:"images,omitempty" json:"images,omitempty" validate:"omitempty,url"`
+	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
 }
