@@ -10,7 +10,7 @@ import (
 //	@Summary		Get all exhibitions
 //	@Description	Get a list of all exhibitions data
 //	@Tags			Exhibitions
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				GetAllExhibitions
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibition
@@ -31,7 +31,7 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 //	@Summary		Get exhibition by ID
 //	@Description	Get exhibition data by exhibitionID
 //	@Tags			Exhibitions
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				GetExhibitionByID
 //	@Produce		json
 //	@Param			id	path		string	true	"Exhibition ID"
@@ -66,7 +66,7 @@ func (h *Handler) GetExhibitionByID(c *gin.Context) {
 //	@Summary		Get all exhibitions is public
 //	@Description	Get a list of all exhibitions data is public only
 //	@Tags			Exhibitions
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				GetExhibitionsIsPublic
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibition

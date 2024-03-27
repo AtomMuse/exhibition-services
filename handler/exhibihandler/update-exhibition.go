@@ -14,7 +14,7 @@ import (
 //	@Summary		Update exhibition by ID
 //	@Description	Update exhibition data by exhibitionID
 //	@Tags			Exhibitions
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				UpdateExhibition
 //	@Produce		json
 //	@Param			id				path		string							true	"Exhibition ID"

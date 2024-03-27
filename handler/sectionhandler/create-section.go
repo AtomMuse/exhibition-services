@@ -12,7 +12,7 @@ import (
 //	@Summary		Create a new exhibitionSection
 //	@Description	Create a new exhibitionSection data
 //	@Tags			Sections
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //
 //	@ID				CreateExhibitionSection
 //

@@ -12,7 +12,7 @@ import (
 //	@Summary		Delete Section by ID
 //	@Description	Delete Section data by sectionID
 //	@Tags			Sections
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				DeleteExhibitionSectionByID
 //	@Produce		json
 //	@Param			id	path		string							true	"Section ID"

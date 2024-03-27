@@ -10,7 +10,7 @@ import (
 //	@Description	Like exhibition by exhibitionID
 //	@Tags			Like
 //
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //
 //	@ID				LikeExhibition
 //	@Produce		json
@@ -33,7 +33,7 @@ func (h *Handler) LikeExhibition(c *gin.Context) {
 //	@Description	unlike exhibition by exhibitionID
 //	@Tags			Unlike
 //
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //
 //	@ID				UnlikeExhibition
 //	@Produce		json

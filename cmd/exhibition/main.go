@@ -29,13 +29,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-//	@title						Exhibition Service API
-//	@version					v0
-//	@description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-//	@schemes					http
-//	@securityDefinitions.apikey	BearerAuthorization HTTP header using the Bearer scheme.
-//	@in							header
-//	@name						Authorization
+//	@Title						Exhibition Service API
+//	@Version					v0
+//	@Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+//	@Schemes					http
+//	@SecurityDefinitions.apikey	BearerAuth
+//	@In							header
+//	@Name						Authorization
 func main() {
 	initializeEnvironment()
 

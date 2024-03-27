@@ -11,7 +11,7 @@ import (
 //	@Description	Get exhibition data by sectionID
 //	@Tags			Sections
 //
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //
 //	@ID				GetExhibitionSectionByID
 //	@Produce		json
@@ -38,7 +38,7 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 //	@Description	Get a list of all exhibition sections data
 //	@Tags			Sections
 //
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //
 //	@ID				GetAllExhibitionSections
 //	@Produce		json
@@ -60,7 +60,7 @@ func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
 //	@Summary		Get Sections By exhibitionID
 //	@Description	Get Sections By exhibitionID
 //	@Tags			Sections
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				GetSectionsByExhibitionID
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection

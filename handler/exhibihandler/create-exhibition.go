@@ -13,7 +13,7 @@ import (
 //	@Summary		Create a new exhibition
 //	@Description	Create a new exhibition data
 //	@Tags			Exhibitions
-//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
 //	@ID				CreateExhibition
 //	@Accept			json
 //	@Produce		json

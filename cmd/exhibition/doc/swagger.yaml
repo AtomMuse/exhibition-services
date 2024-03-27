@@ -385,7 +385,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all exhibitions is public
       tags:
       - Exhibitions
@@ -413,7 +413,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Create a new exhibition
       tags:
       - Exhibitions
@@ -439,7 +439,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Delete exhibition by ID
       tags:
       - Exhibitions
@@ -464,7 +464,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get exhibition by ID
       tags:
       - Exhibitions
@@ -495,7 +495,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Update exhibition by ID
       tags:
       - Exhibitions
@@ -521,7 +521,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Like exhibition by ID
       tags:
       - Like
@@ -543,7 +543,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get Sections By exhibitionID
       tags:
       - Sections
@@ -569,7 +569,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Unlike exhibition by ID
       tags:
       - Unlike
@@ -591,7 +591,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all exhibitions
       tags:
       - Exhibitions
@@ -620,7 +620,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Create a new exhibitionSection
       tags:
       - Sections
@@ -646,7 +646,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Delete Section by ID
       tags:
       - Sections
@@ -671,7 +671,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get exhibitionSection by ID
       tags:
       - Sections
@@ -702,7 +702,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Update exhibitionSection by sectionID
       tags:
       - Sections
@@ -724,14 +724,14 @@ paths:
           schema:
             $ref: '#/definitions/helper.APIError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all exhibitions sections
       tags:
       - Sections
 schemes:
 - http
 securityDefinitions:
-  BearerAuthorization HTTP header using the Bearer scheme.:
+  BearerAuth:
     in: header
     name: Authorization
     type: apiKey
