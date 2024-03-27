@@ -29,13 +29,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-//	@Title						Exhibition Service API
-//	@Version					v0
-//	@Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-//	@Schemes					http
-//	@SecurityDefinitions.apikey	BearerAuth
-//	@In							header
-//	@Name						Authorization
+// @Title						Exhibition Service API
+// @Version					v0
+// @Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+// @Schemes					http
+// @SecurityDefinitions.apikey	BearerAuth
+// @In							header
+// @Name						Authorization
 func main() {
 	initializeEnvironment()
 
@@ -140,8 +140,10 @@ func authMiddleware(role string) gin.HandlerFunc {
 			return
 		}
 
-		// Check if the role matches
-		if claims.Role != role {
+		// Check if the role admin
+		if claims.Role == "admin" {
+			c.Next()
+		} else if claims.Role != role {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 			c.Abort()
 			fmt.Println("Insufficient permissions")
