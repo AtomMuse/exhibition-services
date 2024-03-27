@@ -367,6 +367,32 @@ info:
   title: Exhibition Service API
   version: v0
 paths:
+  /api/{userId}/exhibitions:
+    get:
+      description: Get exhibition data by exhibitionUserID
+      operationId: GetExhibitionByUserID
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/helper.APIError'
+      security:
+      - BearerAuth: []
+      summary: Get exhibition by UserID
+      tags:
+      - Exhibitions
   /api/exhibitions:
     get:
       description: Get a list of all exhibitions data is public only
@@ -384,8 +410,6 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
-      security:
-      - BearerAuth: []
       summary: Get all exhibitions is public
       tags:
       - Exhibitions
@@ -463,8 +487,6 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
-      security:
-      - BearerAuth: []
       summary: Get exhibition by ID
       tags:
       - Exhibitions
@@ -524,7 +546,7 @@ paths:
       - BearerAuth: []
       summary: Like exhibition by ID
       tags:
-      - Like
+      - Like & Unlike
   /api/exhibitions/{id}/sections:
     get:
       description: Get Sections By exhibitionID
@@ -572,7 +594,7 @@ paths:
       - BearerAuth: []
       summary: Unlike exhibition by ID
       tags:
-      - Unlike
+      - Like & Unlike
   /api/exhibitions/all:
     get:
       description: Get a list of all exhibitions data

@@ -173,6 +173,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.GET("/exhibitions/all", authMiddleware("admin"), exhibitionHandler.GetAllExhibitions)
 		api.GET("/exhibitions/:id", exhibitionHandler.GetExhibitionByID)
 		api.GET("/exhibitions", exhibitionHandler.GetExhibitionsIsPublic)
+		api.GET("/:userId/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.GetExhibitionByUserID)
 		api.POST("/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.CreateExhibition)
 		api.DELETE("/exhibitions/:id", authMiddleware("exhibitor"), exhibitionHandler.DeleteExhibition)
 		api.PUT("/exhibitions/:id", authMiddleware("exhibitor"), exhibitionHandler.UpdateExhibition)

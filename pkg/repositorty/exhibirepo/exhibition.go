@@ -15,6 +15,7 @@ type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
@@ -355,4 +356,31 @@ func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionI
 		return errors.New("no documents updated")
 	}
 	return nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error) {
+	// Define the filter for the query
+	filter := bson.M{"userId.userId": userID}
+
+	// Execute the find query
+	cursor, err := r.Collection.Find(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("find error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Iterate through the cursor and decode each document
+	var exhibitions []*model.ResponseExhibition
+	for cursor.Next(ctx) {
+		var exhibition model.ResponseExhibition
+		if err := cursor.Decode(&exhibition); err != nil {
+			return nil, fmt.Errorf("decoding error: %v", err)
+		}
+		exhibitions = append(exhibitions, &exhibition)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %v", err)
+	}
+
+	return exhibitions, nil
 }

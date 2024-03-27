@@ -8,7 +8,7 @@ import (
 
 //	@Summary		Like exhibition by ID
 //	@Description	Like exhibition by exhibitionID
-//	@Tags			Like
+//	@Tags			Like & Unlike
 //
 //	@Security		BearerAuth
 //
@@ -31,7 +31,7 @@ func (h *Handler) LikeExhibition(c *gin.Context) {
 
 //	@Summary		Unlike exhibition by ID
 //	@Description	unlike exhibition by exhibitionID
-//	@Tags			Unlike
+//	@Tags			Like & Unlike
 //
 //	@Security		BearerAuth
 //
