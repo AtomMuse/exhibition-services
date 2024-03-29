@@ -81,7 +81,7 @@ type ResponseExhibition struct {
 	ThumbnailImg          string              `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
 	StartDate             string              `bson:"startDate" json:"startDate"`
 	EndDate               string              `bson:"endDate" json:"endDate" validate:"gtfield=StartDate"`
-	IsPublic              bool                `bson:"isPublic,omitempty" json:"isPublic,omitempty"`
+	IsPublic              bool                `bson:"isPublic" json:"isPublic"`
 	ExhibitionCategories  []string            `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
 	ExhibitionTags        []string            `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
 	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
