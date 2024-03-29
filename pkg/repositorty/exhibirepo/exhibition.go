@@ -18,7 +18,6 @@ type IExhibitionRepository interface {
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
-	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 	LikeExhibition(ctx context.Context, exhibitionID string) error
 	UnlikeExhibition(ctx context.Context, exhibitionID string) error
@@ -122,6 +121,12 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		return nil, fmt.Errorf("decoding error: %v", err)
 	}
 
+	// Ensure correct ExhibitionID in ExhibitionSections
+	for i := range exhibition.ExhibitionSections {
+		// Set the ExhibitionID of each section to the exhibition's ID
+		exhibition.ExhibitionSections[i].ExhibitionID = exhibition.ID
+	}
+
 	return &exhibition, nil
 }
 
@@ -198,14 +203,14 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 	}
 
 	// Perform the deletion
-	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
-	if err != nil {
-		return err
-	}
+	// deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	// if err != nil {
+	// 	return err
+	// }
 
-	if deleteResult.DeletedCount == 0 {
-		return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
-	}
+	// if deleteResult.DeletedCount == 0 {
+	// 	return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
+	// }
 
 	return nil
 }
@@ -249,37 +254,6 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	return &objectID, nil
 }
 
-func (r *ExhibitionRepository) DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error {
-	// Convert the string IDs to ObjectIds
-	exhibitionObjectID, err := primitive.ObjectIDFromHex(exhibitionID)
-	if err != nil {
-		return fmt.Errorf("invalid exhibition ID format: %v", err)
-	}
-
-	sectionObjectID, err := primitive.ObjectIDFromHex(sectionID)
-	if err != nil {
-		return fmt.Errorf("invalid section ID format: %v", err)
-	}
-
-	// Define the filter for the UpdateOne operation
-	filter := bson.M{"_id": exhibitionObjectID}
-
-	// Define the update to pull the section ID from the array
-	update := bson.M{"$pull": bson.M{"exhibitionSectionsID": sectionObjectID}}
-
-	// Perform the update
-	updateResult, err := r.Collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return err
-	}
-
-	// Check if any document is updated
-	if updateResult.ModifiedCount == 0 {
-		return fmt.Errorf("exhibition section ID not deleted for exhibition ID %s and section ID %s", exhibitionID, sectionID)
-	}
-
-	return nil
-}
 func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
