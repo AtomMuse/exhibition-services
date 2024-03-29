@@ -5,10 +5,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type IExhibitionRepository interface {
@@ -172,19 +176,38 @@ func (r *ExhibitionRepository) CreateExhibition(ctx context.Context, exhibition 
 }
 
 func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	client, err := connectToMongoDB(mongoURI)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
+
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
 
-	// Define the match stage for the aggregation pipeline
+	// Define the match stage for the exhibition document in the aggregation pipeline
 	matchStage := bson.M{"$match": bson.M{"_id": objectID}}
 
-	// Aggregate pipeline
+	// Aggregate pipeline for finding the exhibition document
 	pipeline := []bson.M{matchStage}
 
-	// Execute the aggregation
+	// Execute the aggregation to find the exhibition document
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return err
@@ -196,21 +219,40 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 		return fmt.Errorf("exhibition not found for ID %s", exhibitionID)
 	}
 
-	// Decode the main document (assuming ResponseExhibition is the type of your MongoDB documents)
-	var exhibition model.ResponseExhibition
+	// Decode the main exhibition document
+	var exhibition model.ResponseExhibitionForDelete
 	if err := cursor.Decode(&exhibition); err != nil {
 		return err
 	}
 
-	// Perform the deletion
-	// deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
-	// if err != nil {
-	// 	return err
-	// }
+	// Retrieve the exhibitionSectionsIDs from the exhibition document
+	exhibitionSectionsIDs := exhibition.ExhibitionSectionsID
 
-	// if deleteResult.DeletedCount == 0 {
-	// 	return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
-	// }
+	// Perform the deletion of the exhibition document
+	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		return err
+	}
+
+	if deleteResult.DeletedCount == 0 {
+		return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
+	}
+
+	// Now, delete associated exhibitionSections
+	for _, sectionID := range exhibitionSectionsIDs {
+		sectionObjectID, err := primitive.ObjectIDFromHex(sectionID)
+		fmt.Println(sectionObjectID)
+		if err != nil {
+			// Handle error
+			fmt.Println("err1", err)
+		}
+
+		_, err = sectionCollection.DeleteOne(ctx, bson.M{"_id": sectionObjectID})
+		if err != nil {
+			// Handle error
+			fmt.Println("err2", err)
+		}
+	}
 
 	return nil
 }
@@ -306,4 +348,21 @@ func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionI
 		return errors.New("no documents updated")
 	}
 	return nil
+}
+func connectToMongoDB(uri string) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, err
+	}
+
+	log.Printf("Connected to MongoDB at %s\n", uri)
+	return client, nil
 }

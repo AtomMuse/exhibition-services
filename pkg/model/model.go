@@ -93,6 +93,26 @@ type ResponseExhibition struct {
 	Status                string              `bson:"status" json:"status" validate:"required" error:"status is required"`
 }
 
+// ResponseExhibition represents the structure of the exhibition data.
+type ResponseExhibitionForDelete struct {
+	ID                    primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" validate:"required"`
+	ExhibitionName        string             `bson:"exhibitionName" json:"exhibitionName" validate:"required"`
+	ExhibitionDescription string             `bson:"exhibitionDescription,omitempty" json:"exhibitionDescription,omitempty"`
+	ThumbnailImg          string             `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
+	StartDate             string             `bson:"startDate" json:"startDate"`
+	EndDate               string             `bson:"endDate" json:"endDate" validate:"gtfield=StartDate"`
+	IsPublic              bool               `bson:"isPublic" json:"isPublic"`
+	ExhibitionCategories  []string           `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
+	ExhibitionTags        []string           `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
+	UserID                UserID             `bson:"userId" json:"userId" validate:"required"`
+	LayoutUsed            string             `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required"`
+	ExhibitionSectionsID  []string           `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
+	VisitedNumber         int                `bson:"visitedNumber" json:"visitedNumber"`
+	LikeCount             int                `bson:"likeCount" json:"likeCount"`
+	Room                  []Room             `bson:"rooms,omitempty" json:"rooms,omitempty"`
+	Status                string             `bson:"status" json:"status" validate:"required" error:"status is required"`
+}
+
 // RequestGetExhibition represents the structure of the request to get an exhibition.
 type ResponseGetExhibitionId struct {
 	ID primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" validate:"required"`
