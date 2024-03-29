@@ -217,49 +217,26 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	}
 
 	filter := bson.M{"_id": objectID}
-	updateDoc := bson.M{"$set": bson.M{}}
+	updateDoc := bson.M{}
 
-	// Update only non-empty fields
-	if update.ExhibitionName != "" {
-		updateDoc["$set"].(bson.M)["exhibitionName"] = update.ExhibitionName
-	}
-	if update.ExhibitionDescription != "" {
-		updateDoc["$set"].(bson.M)["exhibitionDescription"] = update.ExhibitionDescription
-	}
-	if update.ThumbnailImg != "" {
-		updateDoc["$set"].(bson.M)["thumbnailImg"] = update.ThumbnailImg
-	}
-	if update.StartDate != "" {
-		updateDoc["$set"].(bson.M)["startDate"] = update.StartDate
-	}
-	if update.EndDate != "" {
-		updateDoc["$set"].(bson.M)["endDate"] = update.EndDate
-	}
-	if update.IsPublic {
-		updateDoc["$set"].(bson.M)["isPublic"] = update.IsPublic
-	}
-	if len(update.ExhibitionCategories) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionCategories"] = update.ExhibitionCategories
-	}
-	if len(update.ExhibitionTags) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionTags"] = update.ExhibitionTags
-	}
-	if update.UserID != (model.UserID{}) {
-		updateDoc["$set"].(bson.M)["userId"] = update.UserID
-	}
-	if update.LayoutUsed != "" {
-		updateDoc["$set"].(bson.M)["layoutUsed"] = update.LayoutUsed
-	}
-	if len(update.ExhibitionSectionsID) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionSectionsID"] = update.ExhibitionSectionsID
-	}
-	if update.VisitedNumber != 0 {
-		updateDoc["$set"].(bson.M)["visitedNumber"] = update.VisitedNumber
-	}
-	if len(update.Room) > 0 {
-		updateDoc["$set"].(bson.M)["rooms"] = update.Room
+	// Iterate over fields in the update struct and set them in the update document
+	updateDoc["$set"] = bson.M{
+		"exhibitionName":        update.ExhibitionName,
+		"exhibitionDescription": update.ExhibitionDescription,
+		"thumbnailImg":          update.ThumbnailImg,
+		"startDate":             update.StartDate,
+		"endDate":               update.EndDate,
+		"isPublic":              update.IsPublic,
+		"exhibitionCategories":  update.ExhibitionCategories,
+		"exhibitionTags":        update.ExhibitionTags,
+		"userId":                update.UserID,
+		"layoutUsed":            update.LayoutUsed,
+		"exhibitionSectionsID":  update.ExhibitionSectionsID,
+		"visitedNumber":         update.VisitedNumber,
+		"rooms":                 update.Room,
 	}
 
+	// Perform the update operation
 	result, err := r.Collection.UpdateOne(ctx, filter, updateDoc)
 	if err != nil {
 		return nil, err
