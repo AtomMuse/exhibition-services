@@ -5,10 +5,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type IExhibitionRepository interface {
@@ -19,7 +23,6 @@ type IExhibitionRepository interface {
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
-	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 	LikeExhibition(ctx context.Context, exhibitionID string) error
 	UnlikeExhibition(ctx context.Context, exhibitionID string) error
@@ -123,6 +126,12 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		return nil, fmt.Errorf("decoding error: %v", err)
 	}
 
+	// Ensure correct ExhibitionID in ExhibitionSections
+	for i := range exhibition.ExhibitionSections {
+		// Set the ExhibitionID of each section to the exhibition's ID
+		exhibition.ExhibitionSections[i].ExhibitionID = exhibition.ID
+	}
+
 	return &exhibition, nil
 }
 
@@ -168,19 +177,38 @@ func (r *ExhibitionRepository) CreateExhibition(ctx context.Context, exhibition 
 }
 
 func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionID string) error {
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	client, err := connectToMongoDB(mongoURI)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
+
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
 
-	// Define the match stage for the aggregation pipeline
+	// Define the match stage for the exhibition document in the aggregation pipeline
 	matchStage := bson.M{"$match": bson.M{"_id": objectID}}
 
-	// Aggregate pipeline
+	// Aggregate pipeline for finding the exhibition document
 	pipeline := []bson.M{matchStage}
 
-	// Execute the aggregation
+	// Execute the aggregation to find the exhibition document
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return err
@@ -192,13 +220,16 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 		return fmt.Errorf("exhibition not found for ID %s", exhibitionID)
 	}
 
-	// Decode the main document (assuming ResponseExhibition is the type of your MongoDB documents)
-	var exhibition model.ResponseExhibition
+	// Decode the main exhibition document
+	var exhibition model.ResponseExhibitionForDelete
 	if err := cursor.Decode(&exhibition); err != nil {
 		return err
 	}
 
-	// Perform the deletion
+	// Retrieve the exhibitionSectionsIDs from the exhibition document
+	exhibitionSectionsIDs := exhibition.ExhibitionSectionsID
+
+	// Perform the deletion of the exhibition document
 	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
 	if err != nil {
 		return err
@@ -206,6 +237,22 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 
 	if deleteResult.DeletedCount == 0 {
 		return fmt.Errorf("exhibition not deleted for ID %s", exhibitionID)
+	}
+
+	// Now, delete associated exhibitionSections
+	for _, sectionID := range exhibitionSectionsIDs {
+		sectionObjectID, err := primitive.ObjectIDFromHex(sectionID)
+		fmt.Println(sectionObjectID)
+		if err != nil {
+			// Handle error
+			fmt.Println("err1", err)
+		}
+
+		_, err = sectionCollection.DeleteOne(ctx, bson.M{"_id": sectionObjectID})
+		if err != nil {
+			// Handle error
+			fmt.Println("err2", err)
+		}
 	}
 
 	return nil
@@ -218,49 +265,26 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	}
 
 	filter := bson.M{"_id": objectID}
-	updateDoc := bson.M{"$set": bson.M{}}
+	updateDoc := bson.M{}
 
-	// Update only non-empty fields
-	if update.ExhibitionName != "" {
-		updateDoc["$set"].(bson.M)["exhibitionName"] = update.ExhibitionName
-	}
-	if update.ExhibitionDescription != "" {
-		updateDoc["$set"].(bson.M)["exhibitionDescription"] = update.ExhibitionDescription
-	}
-	if update.ThumbnailImg != "" {
-		updateDoc["$set"].(bson.M)["thumbnailImg"] = update.ThumbnailImg
-	}
-	if update.StartDate != "" {
-		updateDoc["$set"].(bson.M)["startDate"] = update.StartDate
-	}
-	if update.EndDate != "" {
-		updateDoc["$set"].(bson.M)["endDate"] = update.EndDate
-	}
-	if update.IsPublic {
-		updateDoc["$set"].(bson.M)["isPublic"] = update.IsPublic
-	}
-	if len(update.ExhibitionCategories) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionCategories"] = update.ExhibitionCategories
-	}
-	if len(update.ExhibitionTags) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionTags"] = update.ExhibitionTags
-	}
-	if update.UserID != (model.UserID{}) {
-		updateDoc["$set"].(bson.M)["userId"] = update.UserID
-	}
-	if update.LayoutUsed != "" {
-		updateDoc["$set"].(bson.M)["layoutUsed"] = update.LayoutUsed
-	}
-	if len(update.ExhibitionSectionsID) > 0 {
-		updateDoc["$set"].(bson.M)["exhibitionSectionsID"] = update.ExhibitionSectionsID
-	}
-	if update.VisitedNumber != 0 {
-		updateDoc["$set"].(bson.M)["visitedNumber"] = update.VisitedNumber
-	}
-	if len(update.Room) > 0 {
-		updateDoc["$set"].(bson.M)["rooms"] = update.Room
+	// Iterate over fields in the update struct and set them in the update document
+	updateDoc["$set"] = bson.M{
+		"exhibitionName":        update.ExhibitionName,
+		"exhibitionDescription": update.ExhibitionDescription,
+		"thumbnailImg":          update.ThumbnailImg,
+		"startDate":             update.StartDate,
+		"endDate":               update.EndDate,
+		"isPublic":              update.IsPublic,
+		"exhibitionCategories":  update.ExhibitionCategories,
+		"exhibitionTags":        update.ExhibitionTags,
+		"userId":                update.UserID,
+		"layoutUsed":            update.LayoutUsed,
+		"exhibitionSectionsID":  update.ExhibitionSectionsID,
+		"visitedNumber":         update.VisitedNumber,
+		"rooms":                 update.Room,
 	}
 
+	// Perform the update operation
 	result, err := r.Collection.UpdateOne(ctx, filter, updateDoc)
 	if err != nil {
 		return nil, err
@@ -273,37 +297,6 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 	return &objectID, nil
 }
 
-func (r *ExhibitionRepository) DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error {
-	// Convert the string IDs to ObjectIds
-	exhibitionObjectID, err := primitive.ObjectIDFromHex(exhibitionID)
-	if err != nil {
-		return fmt.Errorf("invalid exhibition ID format: %v", err)
-	}
-
-	sectionObjectID, err := primitive.ObjectIDFromHex(sectionID)
-	if err != nil {
-		return fmt.Errorf("invalid section ID format: %v", err)
-	}
-
-	// Define the filter for the UpdateOne operation
-	filter := bson.M{"_id": exhibitionObjectID}
-
-	// Define the update to pull the section ID from the array
-	update := bson.M{"$pull": bson.M{"exhibitionSectionsID": sectionObjectID}}
-
-	// Perform the update
-	updateResult, err := r.Collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return err
-	}
-
-	// Check if any document is updated
-	if updateResult.ModifiedCount == 0 {
-		return fmt.Errorf("exhibition section ID not deleted for exhibition ID %s and section ID %s", exhibitionID, sectionID)
-	}
-
-	return nil
-}
 func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
@@ -383,4 +376,21 @@ func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID
 	}
 
 	return exhibitions, nil
+}
+func connectToMongoDB(uri string) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, err
+	}
+
+	log.Printf("Connected to MongoDB at %s\n", uri)
+	return client, nil
 }

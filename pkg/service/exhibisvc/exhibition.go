@@ -17,7 +17,6 @@ type IExhibitionServices interface {
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
-	DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 	LikeExhibition(ctx context.Context, exhibitionID string) error
 	UnlikeExhibition(ctx context.Context, exhibitionID string) error
@@ -52,9 +51,6 @@ func (service ExhibitionServices) UpdateExhibition(ctx context.Context, exhibiti
 	return service.Repository.UpdateExhibition(ctx, exhibitionID, update)
 }
 
-func (service ExhibitionServices) DeleteExhibitionSectionID(ctx context.Context, exhibitionID string, sectionID string) error {
-	return service.Repository.DeleteExhibitionSectionID(ctx, exhibitionID, sectionID)
-}
 func (service ExhibitionServices) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
 	return service.Repository.UpdateVisitedNumber(ctx, exhibitionID, visitedNumber)
 }

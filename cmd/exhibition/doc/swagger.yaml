@@ -125,12 +125,14 @@ definitions:
         type: integer
     required:
     - endDate
+    - exhibitionCategories
     - exhibitionDescription
     - exhibitionName
     - isPublic
     - layoutUsed
     - startDate
     - status
+    - thumbnailImg
     - userId
     type: object
   model.RequestCreateExhibitionSection:

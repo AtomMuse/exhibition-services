@@ -750,12 +750,14 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "endDate",
+                "exhibitionCategories",
                 "exhibitionDescription",
                 "exhibitionName",
                 "isPublic",
                 "layoutUsed",
                 "startDate",
                 "status",
+                "thumbnailImg",
                 "userId"
             ],
             "properties": {
