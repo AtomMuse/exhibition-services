@@ -132,11 +132,11 @@ type ResponseGetExhibitionSectionId struct {
 type RequestCreateExhibition struct {
 	ExhibitionName        string   `bson:"exhibitionName" json:"exhibitionName" validate:"required" error:"ExhibitionName is required"`
 	ExhibitionDescription string   `bson:"exhibitionDescription" json:"exhibitionDescription" validate:"required" error:"ExhibitionDescription is required"`
-	ThumbnailImg          string   `bson:"thumbnailImg,omitempty" json:"thumbnailImg,omitempty"`
+	ThumbnailImg          string   `bson:"thumbnailImg" json:"thumbnailImg" validate:"required" error:"thumbnailImg is required"`
 	StartDate             string   `bson:"startDate" json:"startDate" validate:"required" error:"StartDate is required"`
 	EndDate               string   `bson:"endDate" json:"endDate" validate:"required" error:"EndDate is required and must be greater than StartDate"`
 	IsPublic              *bool    `bson:"isPublic" json:"isPublic" validate:"required" error:"IsPublic is required"`
-	ExhibitionCategories  []string `bson:"exhibitionCategories,omitempty" json:"exhibitionCategories,omitempty"`
+	ExhibitionCategories  []string `bson:"exhibitionCategories" json:"exhibitionCategories" validate:"required" error:"exhibitionCategories is required"`
 	ExhibitionTags        []string `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
 	UserID                UserID   `bson:"userId" json:"userId" validate:"required" error:"UserID is required"`
 	LayoutUsed            string   `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required" error:"LayoutUsed is required"`

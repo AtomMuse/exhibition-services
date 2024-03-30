@@ -641,12 +641,14 @@
             "type": "object",
             "required": [
                 "endDate",
+                "exhibitionCategories",
                 "exhibitionDescription",
                 "exhibitionName",
                 "isPublic",
                 "layoutUsed",
                 "startDate",
                 "status",
+                "thumbnailImg",
                 "userId"
             ],
             "properties": {
@@ -1045,6 +1047,9 @@
                 },
                 "userId": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }
