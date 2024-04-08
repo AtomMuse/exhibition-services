@@ -19,6 +19,7 @@ type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
@@ -128,27 +129,29 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 				}}},
 			}},
 			{"as", "exhibitionSections"},
-		}}})
+		}}},
+		bson.D{{"$project", bson.D{
+			{"_id", 1},
+			{"exhibitionName", 1},
+			{"exhibitionDescription", 1},
+			{"thumbnailImg", 1},
+			{"startDate", 1},
+			{"endDate", 1},
+			{"isPublic", 1},
+			{"exhibitionCategories", 1},
+			{"exhibitionTags", 1},
+			{"userId", 1},
+			{"layoutUsed", 1},
+			{"exhibitionSections", 1},
+			{"visitedNumber", 1},
+			{"likeCount", 1},
+			{"rooms", 1},
+			{"status", 1},
+		}}},
+		bson.D{{"$match", bson.D{
+			{"_id", objectID}, // Match using the converted ObjectID
+		}}},
 	}
-
-	pipeline = append(pipeline, bson.D{{"$project", bson.D{
-		{"_id", 1},
-		{"exhibitionName", 1},
-		{"exhibitionDescription", 1},
-		{"thumbnailImg", 1},
-		{"startDate", 1},
-		{"endDate", 1},
-		{"isPublic", 1},
-		{"exhibitionCategories", 1},
-		{"exhibitionTags", 1},
-		{"userId", 1},
-		{"layoutUsed", 1},
-		{"exhibitionSections", 1},
-		{"visitedNumber", 1},
-		{"likeCount", 1},
-		{"rooms", 1},
-		{"status", 1},
-	}}})
 
 	// Execute the aggregation for exhibition collection
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
@@ -166,12 +169,6 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 	var exhibition model.ResponseExhibition
 	if err := cursor.Decode(&exhibition); err != nil {
 		return nil, fmt.Errorf("decoding error: %v", err)
-	}
-
-	// Ensure correct ExhibitionID in ExhibitionSections
-	for i := range exhibition.ExhibitionSections {
-		// Set the ExhibitionID of each section to the exhibition's ID
-		exhibition.ExhibitionSections[i].ExhibitionID = exhibition.ID
 	}
 
 	return &exhibition, nil
@@ -391,6 +388,33 @@ func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionI
 		return errors.New("no documents updated")
 	}
 	return nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error) {
+	// Define the filter for the query
+	filter := bson.M{"userId.userId": userID}
+
+	// Execute the find query
+	cursor, err := r.Collection.Find(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("find error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Iterate through the cursor and decode each document
+	var exhibitions []*model.ResponseExhibition
+	for cursor.Next(ctx) {
+		var exhibition model.ResponseExhibition
+		if err := cursor.Decode(&exhibition); err != nil {
+			return nil, fmt.Errorf("decoding error: %v", err)
+		}
+		exhibitions = append(exhibitions, &exhibition)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %v", err)
+	}
+
+	return exhibitions, nil
 }
 func connectToMongoDB(uri string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(uri)

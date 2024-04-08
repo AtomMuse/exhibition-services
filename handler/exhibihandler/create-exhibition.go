@@ -13,6 +13,8 @@ import (
 //	@Summary		Create a new exhibition
 //	@Description	Create a new exhibition data
 //	@Tags			Exhibitions
+//	@Security		BearerAuth
+//	@ID				CreateExhibition
 //	@Accept			json
 //	@Produce		json
 //	@Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
