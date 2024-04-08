@@ -87,6 +87,7 @@ type ResponseExhibition struct {
 	ExhibitionTags        []string            `bson:"exhibitionTags,omitempty" json:"exhibitionTags,omitempty"`
 	UserID                UserID              `bson:"userId" json:"userId" validate:"required"`
 	LayoutUsed            string              `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty" validate:"required"`
+	ExhibitionSectionsID  []string            `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
 	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" `
 	VisitedNumber         int                 `bson:"visitedNumber" json:"visitedNumber"`
 	LikeCount             int                 `bson:"likeCount" json:"likeCount"`
