@@ -30,6 +30,7 @@ type IExhibitionRepository interface {
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
+	GetExhibitionSectionIDs(ctx context.Context, exhibitionID string) ([]string, error)
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -81,56 +82,73 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		return nil, fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
 
+	// Fetch exhibitionSectionIDs from your data source (e.g., another collection)
+	exhibitionSectionIDs, err := r.GetExhibitionSectionIDs(ctx, exhibitionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch exhibition section IDs: %v", err)
+	}
+
+	// Print the fetched section IDs
+	fmt.Println("Exhibition Section IDs:")
+	for _, id := range exhibitionSectionIDs {
+		fmt.Println(id)
+	}
+
 	// Define the aggregation pipeline stages
 	pipeline := bson.A{
-		bson.D{{"$lookup", bson.D{
-			{"from", "exhibitionSections"},
-			{"localField", "_id"},
-			{"foreignField", "exhibitionID"},
-			{"as", "exhibitionSections"},
-		}}},
-		bson.D{{"$project", bson.D{
-			{"_id", 1},
-			{"exhibitionName", 1},
-			{"exhibitionDescription", 1},
-			{"thumbnailImg", 1},
-			{"startDate", 1},
-			{"endDate", 1},
-			{"isPublic", 1},
-			{"exhibitionCategories", 1},
-			{"exhibitionTags", 1},
-			{"userId", 1},
-			{"layoutUsed", 1},
-			{"exhibitionSections", 1},
-			{"visitedNumber", 1},
-			{"likeCount", 1},
-			{"rooms", 1},
-			{"status", 1},
-		}}},
 		bson.D{{"$match", bson.D{
-			{"_id", objectID}, // Match using the converted ObjectID
-		}}},
-		bson.D{{"$unwind", "$exhibitionSections"}},                                // Unwind the array
-		bson.D{{"$sort", bson.D{{"exhibitionSections.exhibitionSectionsID", 1}}}}, // Sort the array by exhibitionSectionsID
-		bson.D{{"$group", bson.D{
-			{"_id", "$_id"},
-			{"exhibitionName", bson.D{{"$first", "$exhibitionName"}}},
-			{"exhibitionDescription", bson.D{{"$first", "$exhibitionDescription"}}},
-			{"thumbnailImg", bson.D{{"$first", "$thumbnailImg"}}},
-			{"startDate", bson.D{{"$first", "$startDate"}}},
-			{"endDate", bson.D{{"$first", "$endDate"}}},
-			{"isPublic", bson.D{{"$first", "$isPublic"}}},
-			{"exhibitionCategories", bson.D{{"$first", "$exhibitionCategories"}}},
-			{"exhibitionTags", bson.D{{"$first", "$exhibitionTags"}}},
-			{"userId", bson.D{{"$first", "$userId"}}},
-			{"layoutUsed", bson.D{{"$first", "$layoutUsed"}}},
-			{"exhibitionSections", bson.D{{"$push", "$exhibitionSections"}}}, // Push the sorted exhibitionSections back into an array
-			{"visitedNumber", bson.D{{"$first", "$visitedNumber"}}},
-			{"likeCount", bson.D{{"$first", "$likeCount"}}},
-			{"rooms", bson.D{{"$first", "$rooms"}}},
-			{"status", bson.D{{"$first", "$status"}}},
+			{"_id", objectID},
 		}}},
 	}
+
+	// Only add $lookup stage if exhibitionSectionIDs is not empty
+	if len(exhibitionSectionIDs) > 0 {
+		pipeline = append(pipeline, bson.D{{"$lookup", bson.D{
+			{"from", "exhibitionSections"},
+			{"let", bson.D{
+				{"exhibitionID", "$_id"},
+				{"exhibitionSectionIDs", exhibitionSectionIDs},
+			}},
+			{"pipeline", bson.A{
+				bson.D{{"$match", bson.D{
+					{"$expr", bson.D{
+						{"$and", bson.A{
+							bson.D{{"$eq", bson.A{"$exhibitionID", "$$exhibitionID"}}},
+							bson.D{{"$in", bson.A{"$exhibitionSectionID", "$$exhibitionSectionIDs"}}},
+						}},
+					}},
+				}}},
+				bson.D{{"$addFields", bson.D{
+					{"__order", bson.D{
+						{"$indexOfArray", bson.A{"$$exhibitionSectionIDs", "$exhibitionSectionID"}},
+					}},
+				}}},
+				bson.D{{"$sort", bson.D{
+					{"__order", 1},
+				}}},
+			}},
+			{"as", "exhibitionSections"},
+		}}})
+	}
+
+	pipeline = append(pipeline, bson.D{{"$project", bson.D{
+		{"_id", 1},
+		{"exhibitionName", 1},
+		{"exhibitionDescription", 1},
+		{"thumbnailImg", 1},
+		{"startDate", 1},
+		{"endDate", 1},
+		{"isPublic", 1},
+		{"exhibitionCategories", 1},
+		{"exhibitionTags", 1},
+		{"userId", 1},
+		{"layoutUsed", 1},
+		{"exhibitionSections", 1},
+		{"visitedNumber", 1},
+		{"likeCount", 1},
+		{"rooms", 1},
+		{"status", 1},
+	}}})
 
 	// Execute the aggregation for exhibition collection
 	cursor, err := r.Collection.Aggregate(ctx, pipeline)
@@ -525,4 +543,49 @@ func (r *ExhibitionRepository) GetExhibitionsByFilter(ctx context.Context, categ
 	}
 
 	return exhibitions, nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionSectionIDs(ctx context.Context, exhibitionID string) ([]string, error) {
+	// Convert the string ID to ObjectId
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+
+	// Define the match stage for the aggregation pipeline
+	matchStage := bson.D{{"$match", bson.D{
+		{"_id", objectID},
+	}}}
+
+	// Define the project stage to extract only the exhibitionSectionsID field
+	projectStage := bson.D{{"$project", bson.D{
+		{"_id", 0}, // Exclude _id field
+		{"exhibitionSectionsID", 1},
+	}}}
+
+	// Aggregate pipeline
+	pipeline := []bson.D{matchStage, projectStage}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of strings
+	var result []struct {
+		ExhibitionSectionsID []string `bson:"exhibitionSectionsID"`
+	}
+	if err := cursor.All(ctx, &result); err != nil {
+		return nil, fmt.Errorf("decoding error: %v", err)
+	}
+
+	// Check if any result is found
+	if len(result) == 0 {
+		return nil, fmt.Errorf("exhibition not found for ID %s", exhibitionID)
+	}
+
+	// Return the exhibitionSectionsID array
+	return result[0].ExhibitionSectionsID, nil
 }
