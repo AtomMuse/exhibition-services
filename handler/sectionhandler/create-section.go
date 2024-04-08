@@ -12,6 +12,10 @@ import (
 //	@Summary		Create a new exhibitionSection
 //	@Description	Create a new exhibitionSection data
 //	@Tags			Sections
+//	@Security		BearerAuth
+//
+//	@ID				CreateExhibitionSection
+//
 //	@Accept			json
 //	@Produce		json
 //	@Param			requestExhibitionSection	body		model.RequestCreateExhibitionSection	true	"ExhibitionSection data to create"

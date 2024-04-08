@@ -46,6 +46,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new exhibition data",
                 "consumes": [
                     "application/json"
@@ -57,6 +62,7 @@ const docTemplate = `{
                     "Exhibitions"
                 ],
                 "summary": "Create a new exhibition",
+                "operationId": "CreateExhibition",
                 "parameters": [
                     {
                         "description": "Exhibition data to create",
@@ -86,6 +92,11 @@ const docTemplate = `{
         },
         "/api/exhibitions/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all exhibitions data",
                 "produces": [
                     "application/json"
@@ -201,6 +212,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
@@ -244,6 +260,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
@@ -280,12 +301,17 @@ const docTemplate = `{
         },
         "/api/exhibitions/{id}/like": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Like exhibition by exhibitionID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Like"
+                    "Like \u0026 Unlike"
                 ],
                 "summary": "Like exhibition by ID",
                 "operationId": "LikeExhibition",
@@ -316,6 +342,11 @@ const docTemplate = `{
         },
         "/api/exhibitions/{id}/sections": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get Sections By exhibitionID",
                 "produces": [
                     "application/json"
@@ -346,12 +377,17 @@ const docTemplate = `{
         },
         "/api/exhibitions/{id}/unlike": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "unlike exhibition by exhibitionID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Unlike"
+                    "Like \u0026 Unlike"
                 ],
                 "summary": "Unlike exhibition by ID",
                 "operationId": "UnlikeExhibition",
@@ -382,6 +418,11 @@ const docTemplate = `{
         },
         "/api/sections": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new exhibitionSection data",
                 "consumes": [
                     "application/json"
@@ -393,6 +434,7 @@ const docTemplate = `{
                     "Sections"
                 ],
                 "summary": "Create a new exhibitionSection",
+                "operationId": "CreateExhibitionSection",
                 "parameters": [
                     {
                         "description": "ExhibitionSection data to create",
@@ -422,6 +464,11 @@ const docTemplate = `{
         },
         "/api/sections/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all exhibition sections data",
                 "produces": [
                     "application/json"
@@ -452,6 +499,11 @@ const docTemplate = `{
         },
         "/api/sections/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get exhibition data by sectionID",
                 "produces": [
                     "application/json"
@@ -486,6 +538,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update exhibitionSection data by sectionID",
                 "produces": [
                     "application/json"
@@ -529,6 +586,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete Section data by sectionID",
                 "produces": [
                     "application/json"
@@ -552,6 +614,47 @@ const docTemplate = `{
                         "description": "Delete Section Success",
                         "schema": {
                             "$ref": "#/definitions/model.ResponseGetExhibitionId"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/{userId}/exhibitions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get exhibition data by exhibitionUserID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get exhibition by UserID",
+                "operationId": "GetExhibitionByUserID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
                         }
                     },
                     "500": {
@@ -1109,6 +1212,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
