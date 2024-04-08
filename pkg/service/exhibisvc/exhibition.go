@@ -19,6 +19,11 @@ type IExhibitionServices interface {
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 	LikeExhibition(ctx context.Context, exhibitionID string) error
 	UnlikeExhibition(ctx context.Context, exhibitionID string) error
+	GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error)
+	GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
 }
 
 // ExhibitionServices is the implementation of the IExhibitionServices interface.
@@ -59,4 +64,21 @@ func (service ExhibitionServices) LikeExhibition(ctx context.Context, exhibition
 
 func (service ExhibitionServices) UnlikeExhibition(ctx context.Context, exhibitionID string) error {
 	return service.Repository.UnlikeExhibition(context.Background(), exhibitionID)
+}
+func (service ExhibitionServices) GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetExhibitionsByCategory(ctx, category)
+}
+func (service ExhibitionServices) GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetCurrentlyExhibitions(ctx)
+}
+
+func (service ExhibitionServices) GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetPreviouslyExhibitions(ctx)
+}
+
+func (service ExhibitionServices) GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetUpcomingExhibitions(ctx)
+}
+func (service ExhibitionServices) GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error) {
+	return service.Repository.GetExhibitionsByFilter(ctx, category, status, sortOrder)
 }

@@ -578,6 +578,40 @@ paths:
       summary: Get all exhibitions
       tags:
       - Exhibitions
+  /api/exhibitions/filter/{category}:
+    get:
+      consumes:
+      - application/json
+      description: Get exhibitions filtered by category, status, and sorting order
+      operationId: get-exhibitions-by-category
+      parameters:
+      - description: Category name
+        in: path
+        name: category
+        required: true
+        type: string
+      - description: Status of the exhibitions (current, previous, upcoming)
+        in: query
+        name: status
+        type: string
+      - description: Sort order (asc, desc)
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseExhibition'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Get exhibitions by category
+      tags:
+      - Exhibitions
   /api/sections:
     post:
       consumes:

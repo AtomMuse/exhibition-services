@@ -25,6 +25,11 @@ type IExhibitionRepository interface {
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
 	LikeExhibition(ctx context.Context, exhibitionID string) error
 	UnlikeExhibition(ctx context.Context, exhibitionID string) error
+	GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error)
+	GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
+	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -104,6 +109,26 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		}}},
 		bson.D{{"$match", bson.D{
 			{"_id", objectID}, // Match using the converted ObjectID
+		}}},
+		bson.D{{"$unwind", "$exhibitionSections"}},                                // Unwind the array
+		bson.D{{"$sort", bson.D{{"exhibitionSections.exhibitionSectionsID", 1}}}}, // Sort the array by exhibitionSectionsID
+		bson.D{{"$group", bson.D{
+			{"_id", "$_id"},
+			{"exhibitionName", bson.D{{"$first", "$exhibitionName"}}},
+			{"exhibitionDescription", bson.D{{"$first", "$exhibitionDescription"}}},
+			{"thumbnailImg", bson.D{{"$first", "$thumbnailImg"}}},
+			{"startDate", bson.D{{"$first", "$startDate"}}},
+			{"endDate", bson.D{{"$first", "$endDate"}}},
+			{"isPublic", bson.D{{"$first", "$isPublic"}}},
+			{"exhibitionCategories", bson.D{{"$first", "$exhibitionCategories"}}},
+			{"exhibitionTags", bson.D{{"$first", "$exhibitionTags"}}},
+			{"userId", bson.D{{"$first", "$userId"}}},
+			{"layoutUsed", bson.D{{"$first", "$layoutUsed"}}},
+			{"exhibitionSections", bson.D{{"$push", "$exhibitionSections"}}}, // Push the sorted exhibitionSections back into an array
+			{"visitedNumber", bson.D{{"$first", "$visitedNumber"}}},
+			{"likeCount", bson.D{{"$first", "$likeCount"}}},
+			{"rooms", bson.D{{"$first", "$rooms"}}},
+			{"status", bson.D{{"$first", "$status"}}},
 		}}},
 	}
 
@@ -365,4 +390,139 @@ func connectToMongoDB(uri string) (*mongo.Client, error) {
 
 	log.Printf("Connected to MongoDB at %s\n", uri)
 	return client, nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error) {
+	// Define the match stage for the aggregation pipeline
+	matchStage := bson.M{"$match": bson.M{"exhibitionCategories": category, "isPublic": true}}
+
+	// Define the sort stage for the aggregation pipeline
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+
+	// Aggregate pipeline
+	pipeline := []bson.M{matchStage, sortStage}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of documents
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+
+	return exhibitions, nil
+}
+
+func (r *ExhibitionRepository) GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	matchStage := bson.M{"$match": bson.M{
+		"isPublic": true,
+		"$expr": bson.M{
+			"$and": []bson.M{
+				bson.M{"$lte": []interface{}{"$startDate", time.Now()}},
+				bson.M{"$gte": []interface{}{"$endDate", time.Now()}},
+			},
+		},
+	}}
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+	pipeline := []bson.M{matchStage, sortStage}
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+	return exhibitions, nil
+}
+
+func (r *ExhibitionRepository) GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	matchStage := bson.M{"$match": bson.M{
+		"isPublic": true,
+		"endDate":  bson.M{"$lt": time.Now().Format("2006-01-02T15:04:05.000Z")},
+	}}
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+	pipeline := []bson.M{matchStage, sortStage}
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+	return exhibitions, nil
+}
+
+func (r *ExhibitionRepository) GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error) {
+	matchStage := bson.M{"$match": bson.M{
+		"isPublic":  true,
+		"startDate": bson.M{"$gt": time.Now().Format("2006-01-02T15:04:05.000Z")},
+	}}
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+	pipeline := []bson.M{matchStage, sortStage}
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+	return exhibitions, nil
+}
+
+func (r *ExhibitionRepository) GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error) {
+	// Define the match stage for the aggregation pipeline
+	matchStage := bson.M{"$match": bson.M{
+		"exhibitionCategories": category,
+		"isPublic":             true,
+	}}
+
+	// Add status filtering
+	switch status {
+	case "current":
+		matchStage["$match"].(bson.M)["$expr"] = bson.M{
+			"$and": []bson.M{
+				bson.M{"$lte": []interface{}{"$startDate", time.Now()}},
+				bson.M{"$gte": []interface{}{"$endDate", time.Now()}},
+			},
+		}
+	case "previous":
+		matchStage["$match"].(bson.M)["endDate"] = bson.M{"$lt": time.Now().Format("2006-01-02T15:04:05.000Z")}
+	case "upcoming":
+		matchStage["$match"].(bson.M)["startDate"] = bson.M{"$gt": time.Now().Format("2006-01-02T15:04:05.000Z")}
+	}
+
+	// Define the sort stage for the aggregation pipeline
+	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
+	if sortOrder == "desc" {
+		sortStage["$sort"].(bson.M)["startDate"] = -1
+	}
+
+	// Aggregate pipeline
+	pipeline := []bson.M{matchStage, sortStage}
+
+	// Execute the aggregation
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("aggregation error: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of documents
+	var exhibitions []model.ResponseExhibition
+	if err := cursor.All(ctx, &exhibitions); err != nil {
+		return nil, err
+	}
+
+	return exhibitions, nil
 }

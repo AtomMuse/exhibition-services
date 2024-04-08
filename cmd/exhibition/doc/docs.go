@@ -114,6 +114,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/exhibitions/filter/{category}": {
+            "get": {
+                "description": "Get exhibitions filtered by category, status, and sorting order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exhibitions"
+                ],
+                "summary": "Get exhibitions by category",
+                "operationId": "get-exhibitions-by-category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category name",
+                        "name": "category",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status of the exhibitions (current, previous, upcoming)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc, desc)",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/exhibitions/{id}": {
             "get": {
                 "description": "Get exhibition data by exhibitionID",

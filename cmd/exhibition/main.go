@@ -24,10 +24,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// @title			Exhibition Service API
-// @version		v0
-// @description	Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-// @schemes		http
+//	@title			Exhibition Service API
+//	@version		v0
+//	@description	Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+//	@schemes		http
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)
@@ -77,6 +77,9 @@ func main() {
 		})
 		api.GET("/exhibitions/:id", func(c *gin.Context) {
 			handlerExhibition.GetExhibitionByID(c)
+		})
+		api.GET("/exhibitions/filter/:category", func(c *gin.Context) {
+			handlerExhibition.GetExhibitionsByFilter(c)
 		})
 		api.GET("/exhibitions", func(c *gin.Context) {
 			handlerExhibition.GetExhibitionsIsPublic(c)
