@@ -60,56 +60,6 @@ func main() {
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
-	api := router.Group("/api")
-	{
-		api.GET("/exhibitions/all", func(c *gin.Context) {
-			handlerExhibition.GetAllExhibitions(c)
-		})
-		api.GET("/exhibitions/:id", func(c *gin.Context) {
-			handlerExhibition.GetExhibitionByID(c)
-		})
-		api.GET("/exhibitions/filter/:category", func(c *gin.Context) {
-			handlerExhibition.GetExhibitionsByFilter(c)
-		})
-		api.GET("/exhibitions", func(c *gin.Context) {
-			handlerExhibition.GetExhibitionsIsPublic(c)
-		})
-		api.POST("/exhibitions", func(c *gin.Context) {
-			handlerExhibition.CreateExhibition(c)
-		})
-		api.DELETE("/exhibitions/:id", func(c *gin.Context) {
-			handlerExhibition.DeleteExhibition(c)
-		})
-		api.PUT("/exhibitions/:id", func(c *gin.Context) {
-			handlerExhibition.UpdateExhibition(c)
-		})
-		api.POST("/sections", func(c *gin.Context) {
-			handlerSection.CreateExhibitionSection(c)
-		})
-		api.DELETE("/sections/:id", func(c *gin.Context) {
-			handlerSection.DeleteExhibitionSectionByID(c)
-		})
-		api.GET("/sections/:id", func(c *gin.Context) {
-			handlerSection.GetExhibitionSectionByID(c)
-		})
-		api.GET("/sections/all", func(c *gin.Context) {
-			handlerSection.GetAllExhibitionSections(c)
-		})
-		api.GET("/exhibitions/:id/sections", func(c *gin.Context) {
-			handlerSection.GetSectionsByExhibitionID(c)
-		})
-		api.PUT("/sections/:id", func(c *gin.Context) {
-			handlerSection.UpdateExhibitionSection(c)
-		})
-		api.PUT("/exhibitions/:id/like", func(c *gin.Context) {
-			handlerExhibition.LikeExhibition(c)
-		})
-		api.PUT("/exhibitions/:id/unlike", func(c *gin.Context) {
-			handlerExhibition.UnlikeExhibition(c)
-		})
-
-	}
-
 	log.Println("Server started on :8080")
 	log.Fatal(router.Run(":8080"))
 }

@@ -111,26 +111,6 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		bson.D{{"$match", bson.D{
 			{"_id", objectID}, // Match using the converted ObjectID
 		}}},
-		bson.D{{"$unwind", "$exhibitionSections"}},                                // Unwind the array
-		bson.D{{"$sort", bson.D{{"exhibitionSections.exhibitionSectionsID", 1}}}}, // Sort the array by exhibitionSectionsID
-		bson.D{{"$group", bson.D{
-			{"_id", "$_id"},
-			{"exhibitionName", bson.D{{"$first", "$exhibitionName"}}},
-			{"exhibitionDescription", bson.D{{"$first", "$exhibitionDescription"}}},
-			{"thumbnailImg", bson.D{{"$first", "$thumbnailImg"}}},
-			{"startDate", bson.D{{"$first", "$startDate"}}},
-			{"endDate", bson.D{{"$first", "$endDate"}}},
-			{"isPublic", bson.D{{"$first", "$isPublic"}}},
-			{"exhibitionCategories", bson.D{{"$first", "$exhibitionCategories"}}},
-			{"exhibitionTags", bson.D{{"$first", "$exhibitionTags"}}},
-			{"userId", bson.D{{"$first", "$userId"}}},
-			{"layoutUsed", bson.D{{"$first", "$layoutUsed"}}},
-			{"exhibitionSections", bson.D{{"$push", "$exhibitionSections"}}}, // Push the sorted exhibitionSections back into an array
-			{"visitedNumber", bson.D{{"$first", "$visitedNumber"}}},
-			{"likeCount", bson.D{{"$first", "$likeCount"}}},
-			{"rooms", bson.D{{"$first", "$rooms"}}},
-			{"status", bson.D{{"$first", "$status"}}},
-		}}},
 	}
 
 	// Execute the aggregation for exhibition collection
@@ -149,12 +129,6 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 	var exhibition model.ResponseExhibition
 	if err := cursor.Decode(&exhibition); err != nil {
 		return nil, fmt.Errorf("decoding error: %v", err)
-	}
-
-	// Ensure correct ExhibitionID in ExhibitionSections
-	for i := range exhibition.ExhibitionSections {
-		// Set the ExhibitionID of each section to the exhibition's ID
-		exhibition.ExhibitionSections[i].ExhibitionID = exhibition.ID
 	}
 
 	return &exhibition, nil
