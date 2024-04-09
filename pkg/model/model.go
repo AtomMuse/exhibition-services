@@ -7,10 +7,10 @@ import (
 
 // UserID represents user identification data.
 type UserID struct {
-	UserID    int    `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
-	FirstName string `bson:"firstName,omitempty" json:"firstName,omitempty"`
-	LastName  string `bson:"lastName,omitempty" json:"lastName,omitempty"`
-	Username  string `bson:"username,omitempty" json:"username,omitempty"`
+	UserID    primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
+	FirstName string             `bson:"firstName,omitempty" json:"firstName,omitempty"`
+	LastName  string             `bson:"lastName,omitempty" json:"lastName,omitempty"`
+	Username  string             `bson:"username,omitempty" json:"username,omitempty"`
 }
 
 // ExhibitionSection represents the structure of an exhibition section.
@@ -24,7 +24,7 @@ type ExhibitionSection struct {
 	LeftCol      LeftColumn         `bson:"leftCol,omitempty" json:"leftCol,omitempty" `
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
-	ExhibitionID primitive.ObjectID `bson:"exhibitionId" json:"exhibitionId" validate:"required"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionId" validate:"required"`
 }
 
 // LeftColumn represents the structure of the left column in an exhibition section.
@@ -72,6 +72,12 @@ type Room struct {
 	Left         []LeftRightItem `bson:"left,omitempty" json:"left,omitempty"`
 	Center       []CenterItem    `bson:"center,omitempty" json:"center,omitempty"`
 	Right        []LeftRightItem `bson:"right,omitempty" json:"right,omitempty"`
+}
+
+// ExhibitionSectionInfo represents information about exhibition sections
+type ExhibitionSectionInfo struct {
+	Index                int    // Index of the exhibition
+	ExhibitionSectionsID string // IDs of exhibition sections
 }
 
 // ResponseExhibition represents the structure of the exhibition data.

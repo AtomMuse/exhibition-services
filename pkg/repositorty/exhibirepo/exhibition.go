@@ -19,7 +19,7 @@ type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
-	GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error)
+	GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
@@ -31,7 +31,7 @@ type IExhibitionRepository interface {
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
-	GetExhibitionSectionIDs(ctx context.Context, exhibitionID string) ([]string, error)
+	GetExhibitionSectionInfo(ctx context.Context, exhibitionID string) ([]model.ExhibitionSectionInfo, error)
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -77,101 +77,110 @@ func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.R
 
 // GetExhibitionByID retrieves an exhibition by its ID along with its sections.
 func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
-	// Convert the string ID to ObjectId
-	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	// Convert exhibitionID to ObjectID
+	objID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
-		return nil, fmt.Errorf("invalid exhibition ID format: %v", err)
+		return nil, err
 	}
 
-	// Fetch exhibitionSectionIDs from your data source (e.g., another collection)
-	exhibitionSectionIDs, err := r.GetExhibitionSectionIDs(ctx, exhibitionID)
+	// Find exhibition by ID
+	var exhibition model.ResponseExhibition
+	err = r.Collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&exhibition)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch exhibition section IDs: %v", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, errors.New("exhibition not found")
+		}
+		return nil, err
 	}
 
-	// Print the fetched section IDs
-	fmt.Println("Exhibition Section IDs:")
-	for _, id := range exhibitionSectionIDs {
-		fmt.Println(id)
+	// Find sections related to the exhibition
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
 	}
+	log.Println("MongoURI:", mongoURI)
 
-	// Define the aggregation pipeline stages
-	pipeline := bson.A{
-		bson.D{{"$match", bson.D{
-			{"_id", objectID},
-		}}},
-	}
-
-	// Only add $lookup stage if exhibitionSectionIDs is not empty
-	if len(exhibitionSectionIDs) > 0 {
-		pipeline = append(pipeline, bson.D{{"$lookup", bson.D{
-			{"from", "exhibitionSections"},
-			{"let", bson.D{
-				{"exhibitionID", "$_id"},
-				{"exhibitionSectionIDs", exhibitionSectionIDs},
-			}},
-			{"pipeline", bson.A{
-				bson.D{{"$match", bson.D{
-					{"$expr", bson.D{
-						{"$and", bson.A{
-							bson.D{{"$eq", bson.A{"$exhibitionID", "$$exhibitionID"}}},
-							bson.D{{"$in", bson.A{"$exhibitionSectionID", "$$exhibitionSectionIDs"}}},
-						}},
-					}},
-				}}},
-				bson.D{{"$addFields", bson.D{
-					{"__order", bson.D{
-						{"$indexOfArray", bson.A{"$$exhibitionSectionIDs", "$exhibitionSectionID"}},
-					}},
-				}}},
-				bson.D{{"$sort", bson.D{
-					{"__order", 1},
-				}}},
-			}},
-			{"as", "exhibitionSections"},
-		}}},
-		bson.D{{"$project", bson.D{
-			{"_id", 1},
-			{"exhibitionName", 1},
-			{"exhibitionDescription", 1},
-			{"thumbnailImg", 1},
-			{"startDate", 1},
-			{"endDate", 1},
-			{"isPublic", 1},
-			{"exhibitionCategories", 1},
-			{"exhibitionTags", 1},
-			{"userId", 1},
-			{"layoutUsed", 1},
-			{"exhibitionSections", 1},
-			{"visitedNumber", 1},
-			{"likeCount", 1},
-			{"rooms", 1},
-			{"status", 1},
-		}}},
-		bson.D{{"$match", bson.D{
-			{"_id", objectID}, // Match using the converted ObjectID
-		}}},
-	}
-
-	// Execute the aggregation for exhibition collection
-	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
-		return nil, fmt.Errorf("aggregation error: %v", err)
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
+
+	// Loop through exhibition section IDs
+	var sections []model.ExhibitionSection
+	for _, sectionID := range exhibition.ExhibitionSectionsID {
+		// Convert sectionID to ObjectID
+		sectionObjID, err := primitive.ObjectIDFromHex(sectionID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Find section by ID
+		var section model.ExhibitionSection
+		err = sectionCollection.FindOne(ctx, bson.M{"_id": sectionObjID}).Decode(&section)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return nil, errors.New("section not found")
+			}
+			return nil, err
+		}
+
+		sections = append(sections, section)
+	}
+
+	// Assign sections to the exhibition
+	exhibition.ExhibitionSections = sections
+
+	return &exhibition, nil
+}
+
+func (r *ExhibitionRepository) GetSectionsByExhibitionID(ctx context.Context, exhibitionID primitive.ObjectID) ([]model.ExhibitionSection, error) {
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	client, err := connectToMongoDB(mongoURI)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
+
+	// Find sections by exhibition ID
+	cursor, err := sectionCollection.Find(ctx, bson.M{"exhibitionId": exhibitionID})
+	if err != nil {
+		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	// Check if any result is found
-	if !cursor.Next(ctx) {
-		return nil, fmt.Errorf("exhibition not found for ID %s", exhibitionID)
+	var sections []model.ExhibitionSection
+	for cursor.Next(ctx) {
+		var section model.ExhibitionSection
+		if err := cursor.Decode(&section); err != nil {
+			return nil, err
+		}
+		sections = append(sections, section)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
-	// Decode the main document from exhibition collection
-	var exhibition model.ResponseExhibition
-	if err := cursor.Decode(&exhibition); err != nil {
-		return nil, fmt.Errorf("decoding error: %v", err)
-	}
-
-	return &exhibition, nil
+	return sections, nil
 }
 
 func (r *ExhibitionRepository) GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error) {
@@ -390,9 +399,14 @@ func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionI
 	return nil
 }
 
-func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error) {
+func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error) {
+
+	objectID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
 	// Define the filter for the query
-	filter := bson.M{"userId.userId": userID}
+	filter := bson.M{"userId.userId": objectID}
 
 	// Execute the find query
 	cursor, err := r.Collection.Find(ctx, filter)
@@ -416,6 +430,7 @@ func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID
 
 	return exhibitions, nil
 }
+
 func connectToMongoDB(uri string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -569,7 +584,8 @@ func (r *ExhibitionRepository) GetExhibitionsByFilter(ctx context.Context, categ
 	return exhibitions, nil
 }
 
-func (r *ExhibitionRepository) GetExhibitionSectionIDs(ctx context.Context, exhibitionID string) ([]string, error) {
+// GetExhibitionSectionInfo retrieves the section IDs of an exhibition along with its index
+func (r *ExhibitionRepository) GetExhibitionSectionInfo(ctx context.Context, exhibitionID string) ([]model.ExhibitionSectionInfo, error) {
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -610,6 +626,15 @@ func (r *ExhibitionRepository) GetExhibitionSectionIDs(ctx context.Context, exhi
 		return nil, fmt.Errorf("exhibition not found for ID %s", exhibitionID)
 	}
 
-	// Return the exhibitionSectionsID array
-	return result[0].ExhibitionSectionsID, nil
+	// Construct ExhibitionSectionInfo array
+	var infos []model.ExhibitionSectionInfo
+	for i, sectionID := range result[0].ExhibitionSectionsID {
+		info := model.ExhibitionSectionInfo{
+			Index:                i,
+			ExhibitionSectionsID: sectionID,
+		}
+		infos = append(infos, info)
+	}
+
+	return infos, nil
 }

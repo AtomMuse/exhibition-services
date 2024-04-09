@@ -13,7 +13,7 @@ type IExhibitionServices interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(context.Context) ([]model.ResponseExhibition, error)
-	GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error)
+	GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
@@ -67,7 +67,7 @@ func (service ExhibitionServices) UnlikeExhibition(ctx context.Context, exhibiti
 	return service.Repository.UnlikeExhibition(context.Background(), exhibitionID)
 }
 
-func (service ExhibitionServices) GetExhibitionByUserID(ctx context.Context, userID int) ([]*model.ResponseExhibition, error) {
+func (service ExhibitionServices) GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error) {
 	return service.Repository.GetExhibitionByUserID(ctx, userID)
 }
 func (service ExhibitionServices) GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error) {

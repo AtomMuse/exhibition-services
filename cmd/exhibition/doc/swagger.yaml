@@ -246,6 +246,10 @@ definitions:
         items:
           $ref: '#/definitions/model.ExhibitionSection'
         type: array
+      exhibitionSectionsID:
+        items:
+          type: string
+        type: array
       exhibitionTags:
         items:
           type: string
@@ -356,7 +360,7 @@ definitions:
       lastName:
         type: string
       userId:
-        type: integer
+        type: string
       username:
         type: string
     required:
@@ -378,7 +382,7 @@ paths:
         in: path
         name: userId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

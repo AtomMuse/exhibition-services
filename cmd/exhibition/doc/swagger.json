@@ -637,7 +637,7 @@
                 "operationId": "GetExhibitionByUserID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "userId",
                         "in": "path",
@@ -1039,6 +1039,12 @@
                         "$ref": "#/definitions/model.ExhibitionSection"
                     }
                 },
+                "exhibitionSectionsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "exhibitionTags": {
                     "type": "array",
                     "items": {
@@ -1200,7 +1206,7 @@
                     "type": "string"
                 },
                 "userId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

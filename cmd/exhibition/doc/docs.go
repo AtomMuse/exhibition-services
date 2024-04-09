@@ -643,7 +643,7 @@ const docTemplate = `{
                 "operationId": "GetExhibitionByUserID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "userId",
                         "in": "path",
@@ -1045,6 +1045,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.ExhibitionSection"
                     }
                 },
+                "exhibitionSectionsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "exhibitionTags": {
                     "type": "array",
                     "items": {
@@ -1206,7 +1212,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
