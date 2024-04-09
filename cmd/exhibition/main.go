@@ -158,6 +158,19 @@ func authMiddleware(role string) gin.HandlerFunc {
 func setupRouter(client *mongo.Client) *gin.Engine {
 	router := gin.Default()
 
+	router.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*") // Replace "*" with allowed origins
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+			return
+		}
+
+		c.Next()
+	})
+
 	// Initialize handlers and services
 	exhibitionHandler := initExhibitionHandler(client)
 	sectionHandler := initSectionHandler(client)
@@ -175,16 +188,16 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.GET("/exhibitions/:id", exhibitionHandler.GetExhibitionByID)
 		api.GET("/exhibitions", exhibitionHandler.GetExhibitionsIsPublic)
 		api.GET("/:userId/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.GetExhibitionByUserID)
-		api.POST("/exhibitions", exhibitionHandler.CreateExhibition)
+		api.POST("/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.CreateExhibition)
 		api.DELETE("/exhibitions/:id", authMiddleware("exhibitor"), exhibitionHandler.DeleteExhibition)
 		api.PUT("/exhibitions/:id", exhibitionHandler.UpdateExhibition)
 		//ExhibitionSections
-		api.POST("/sections", sectionHandler.CreateExhibitionSection)
+		api.POST("/sections", authMiddleware("exhibitor"), sectionHandler.CreateExhibitionSection)
 		api.DELETE("/sections/:id", authMiddleware("exhibitor"), sectionHandler.DeleteExhibitionSectionByID)
-		api.GET("/sections/:id", sectionHandler.GetExhibitionSectionByID)
+		api.GET("/sections/:id", authMiddleware("exhibitor"), sectionHandler.GetExhibitionSectionByID)
 		api.GET("/sections/all", authMiddleware("admin"), sectionHandler.GetAllExhibitionSections)
 		api.GET("/exhibitions/:id/sections", authMiddleware("admin"), sectionHandler.GetSectionsByExhibitionID)
-		api.PUT("/sections/:id", sectionHandler.UpdateExhibitionSection)
+		api.PUT("/sections/:id", authMiddleware("exhibitor"), sectionHandler.UpdateExhibitionSection)
 		//like & Unlike
 		api.PUT("/exhibitions/:id/like", authMiddleware("exhibitor"), exhibitionHandler.LikeExhibition)
 		api.PUT("/exhibitions/:id/unlike", authMiddleware("exhibitor"), exhibitionHandler.UnlikeExhibition)
