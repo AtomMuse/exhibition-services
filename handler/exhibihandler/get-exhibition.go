@@ -101,7 +101,7 @@ func (h *Handler) GetExhibitionByUserID(c *gin.Context) {
 	exhibitions, err := h.ExhibitionService.GetExhibitionByUserID(c.Request.Context(), userID)
 	if err != nil {
 		log.Printf("Error retrieving exhibitions for user ID %d: %v", userID, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 

@@ -94,45 +94,9 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 	}
 
 	// Find sections related to the exhibition
-	mongoURI := os.Getenv("MONGO_URI")
-	if mongoURI == "" {
-		log.Fatal("MONGO_URI environment variable not set.")
-	}
-	log.Println("MongoURI:", mongoURI)
-
-	client, err := connectToMongoDB(mongoURI)
+	sections, err := r.GetSectionsByExhibitionID(ctx, objID)
 	if err != nil {
-		log.Fatal("Error connecting to MongoDB:", err)
-	}
-	defer func() {
-		if err := client.Disconnect(context.Background()); err != nil {
-			log.Println("Error disconnecting from MongoDB:", err)
-		}
-	}()
-
-	// Specify the collection names
-	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
-
-	// Loop through exhibition section IDs
-	var sections []model.ExhibitionSection
-	for _, sectionID := range exhibition.ExhibitionSectionsID {
-		// Convert sectionID to ObjectID
-		sectionObjID, err := primitive.ObjectIDFromHex(sectionID)
-		if err != nil {
-			return nil, err
-		}
-
-		// Find section by ID
-		var section model.ExhibitionSection
-		err = sectionCollection.FindOne(ctx, bson.M{"_id": sectionObjID}).Decode(&section)
-		if err != nil {
-			if errors.Is(err, mongo.ErrNoDocuments) {
-				return nil, errors.New("section not found")
-			}
-			return nil, err
-		}
-
-		sections = append(sections, section)
+		return nil, fmt.Errorf("error retrieving sections for exhibition: %w", err)
 	}
 
 	// Assign sections to the exhibition
@@ -144,13 +108,12 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 func (r *ExhibitionRepository) GetSectionsByExhibitionID(ctx context.Context, exhibitionID primitive.ObjectID) ([]model.ExhibitionSection, error) {
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		log.Fatal("MONGO_URI environment variable not set.")
+		return nil, errors.New("MONGO_URI environment variable not set")
 	}
-	log.Println("MongoURI:", mongoURI)
 
 	client, err := connectToMongoDB(mongoURI)
 	if err != nil {
-		log.Fatal("Error connecting to MongoDB:", err)
+		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
 	}
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
@@ -162,9 +125,9 @@ func (r *ExhibitionRepository) GetSectionsByExhibitionID(ctx context.Context, ex
 	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
 
 	// Find sections by exhibition ID
-	cursor, err := sectionCollection.Find(ctx, bson.M{"exhibitionId": exhibitionID})
+	cursor, err := sectionCollection.Find(ctx, bson.M{"exhibitionID": exhibitionID})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error finding sections for exhibition: %w", err)
 	}
 	defer cursor.Close(ctx)
 
@@ -172,12 +135,17 @@ func (r *ExhibitionRepository) GetSectionsByExhibitionID(ctx context.Context, ex
 	for cursor.Next(ctx) {
 		var section model.ExhibitionSection
 		if err := cursor.Decode(&section); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error decoding section: %w", err)
 		}
 		sections = append(sections, section)
 	}
+
 	if err := cursor.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cursor error: %w", err)
+	}
+
+	if len(sections) == 0 {
+		return nil, errors.New("no sections found for the exhibition")
 	}
 
 	return sections, nil
