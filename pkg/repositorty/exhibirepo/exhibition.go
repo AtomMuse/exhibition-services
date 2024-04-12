@@ -92,15 +92,16 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		}
 		return nil, err
 	}
+	if exhibition.LayoutUsed == "blogLayout" {
+		// Find sections related to the exhibition
+		sections, err := r.GetSectionsByExhibitionID(ctx, objID)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving sections for exhibition: %w", err)
+		}
 
-	// Find sections related to the exhibition
-	sections, err := r.GetSectionsByExhibitionID(ctx, objID)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving sections for exhibition: %w", err)
+		// Assign sections to the exhibition
+		exhibition.ExhibitionSections = sections
 	}
-
-	// Assign sections to the exhibition
-	exhibition.ExhibitionSections = sections
 
 	return &exhibition, nil
 }
