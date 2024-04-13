@@ -366,6 +366,9 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -454,10 +457,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/helper.APIError"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Invalid request body"
                     }
                 }
             }
@@ -478,6 +487,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get all exhibitions sections",
                 "operationId": "GetAllExhibitionSections",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -487,6 +505,9 @@ const docTemplate = `{
                                 "$ref": "#/definitions/model.ResponseExhibitionSection"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error",
@@ -528,6 +549,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.ResponseExhibitionSection"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error",
@@ -577,6 +601,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.ResponseExhibition"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -615,6 +642,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.ResponseGetExhibitionId"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error",

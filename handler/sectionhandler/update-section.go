@@ -20,7 +20,8 @@ import (
 //	@Param			updateRequest	body		model.RequestUpdateExhibitionSection	true	"ExhibitionSection data to update"
 //
 //	@Success		200				{object}	model.ResponseExhibition
-//	@Failure		500				{object}	helper.APIError	"Internal server error"
+//	@Failure		401
+//	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/sections/{id} [put]
 func (h *Handler) UpdateExhibitionSection(c *gin.Context) {
 	var requestUpdateExhibitionSection model.RequestUpdateExhibitionSection

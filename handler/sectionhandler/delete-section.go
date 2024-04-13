@@ -17,7 +17,8 @@ import (
 //	@Produce		json
 //	@Param			id	path		string							true	"Section ID"
 //	@Success		200	{object}	model.ResponseGetExhibitionId	"Delete Section Success"
-//	@Failure		500	{object}	helper.APIError					"Internal server error"
+//	@Failure		401
+//	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/sections/{id} [delete]
 func (h *Handler) DeleteExhibitionSectionByID(c *gin.Context) {
 	sectionID := c.Param("id")

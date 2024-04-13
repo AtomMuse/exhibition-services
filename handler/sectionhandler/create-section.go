@@ -20,7 +20,9 @@ import (
 //	@Produce		json
 //	@Param			requestExhibitionSection	body		model.RequestCreateExhibitionSection	true	"ExhibitionSection data to create"
 //	@Success		201							{object}	model.ResponseGetExhibitionSectionId	"Success"
-//	@Failure		400							{object}	helper.APIError							"Invalid request body"
+//	@Failure		400							{object}	helper.APIError
+//	@Failure		401
+//	@Failure		500	"Invalid request body"
 //	@Router			/api/sections [post]
 func (h *Handler) CreateExhibitionSection(c *gin.Context) {
 	var requestExhibitionSection model.RequestCreateExhibitionSection

@@ -17,6 +17,7 @@ import (
 //	@Produce		json
 //	@Param			id	path		string	true	"Exhibition Section ID"
 //	@Success		200	{object}	model.ResponseExhibitionSection
+//	@Failure		401
 //	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/sections/{id} [get]
 func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
@@ -41,8 +42,10 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 //	@Security		BearerAuth
 //
 //	@ID				GetAllExhibitionSections
+//	@Param			id	path	string	true	"Exhibition ID"
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
+//	@Failure		401
 //	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/sections/all [get]
 func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
@@ -64,6 +67,7 @@ func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
 //	@ID				GetSectionsByExhibitionID
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
+//	@Failure		401
 //	@Failure		500	{object}	helper.APIError	"Internal server error"
 //	@Router			/api/exhibitions/{id}/sections [get]
 func (h *Handler) GetSectionsByExhibitionID(c *gin.Context) {
