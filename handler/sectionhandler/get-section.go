@@ -42,7 +42,6 @@ func (h *Handler) GetExhibitionSectionByID(c *gin.Context) {
 //	@Security		BearerAuth
 //
 //	@ID				GetAllExhibitionSections
-//	@Param			id	path	string	true	"Exhibition ID"
 //	@Produce		json
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
 //	@Failure		401
@@ -66,6 +65,7 @@ func (h *Handler) GetAllExhibitionSections(c *gin.Context) {
 //	@Security		BearerAuth
 //	@ID				GetSectionsByExhibitionID
 //	@Produce		json
+//	@Param			id	path		string	true	"Exhibition ID"
 //	@Success		200	{object}	[]model.ResponseExhibitionSection
 //	@Failure		401
 //	@Failure		500	{object}	helper.APIError	"Internal server error"

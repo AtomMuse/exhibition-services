@@ -557,6 +557,12 @@ paths:
     get:
       description: Get Sections By exhibitionID
       operationId: GetSectionsByExhibitionID
+      parameters:
+      - description: Exhibition ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -784,12 +790,6 @@ paths:
     get:
       description: Get a list of all exhibition sections data
       operationId: GetAllExhibitionSections
-      parameters:
-      - description: Exhibition ID
-        in: path
-        name: id
-        required: true
-        type: string
       produces:
       - application/json
       responses:

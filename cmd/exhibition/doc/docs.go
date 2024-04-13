@@ -356,6 +356,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get Sections By exhibitionID",
                 "operationId": "GetSectionsByExhibitionID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -487,15 +496,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get all exhibitions sections",
                 "operationId": "GetAllExhibitionSections",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Exhibition ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
