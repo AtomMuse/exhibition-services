@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
@@ -17,6 +16,7 @@ import (
 	"atommuse/backend/exhibition-service/pkg/repositorty/sectionrepo"
 	"atommuse/backend/exhibition-service/pkg/service/exhibisvc"
 	"atommuse/backend/exhibition-service/pkg/service/sectionsvc"
+	"atommuse/backend/exhibition-service/pkg/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-contrib/cors"
@@ -26,7 +26,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // @Title						Exhibition Service API
@@ -45,7 +44,7 @@ func main() {
 	}
 	log.Println("MongoURI:", mongoURI)
 
-	client, err := connectToMongoDB(mongoURI)
+	client, err := utils.ConnectToMongoDB(mongoURI)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
 	}
@@ -69,25 +68,6 @@ func initializeEnvironment() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file:", err)
 	}
-}
-
-// connectToMongoDB connects to MongoDB
-func connectToMongoDB(uri string) (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(context.Background(), clientOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := client.Ping(ctx, nil); err != nil {
-		return nil, err
-	}
-
-	log.Printf("Connected to MongoDB at %s\n", uri)
-	return client, nil
 }
 
 // authMiddleware is middleware to validate the token and check the role

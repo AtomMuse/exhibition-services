@@ -2,9 +2,12 @@ package sectionrepo
 
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
+	"atommuse/backend/exhibition-service/pkg/utils"
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -71,6 +74,44 @@ func (r *SectionRepository) DeleteExhibitionSectionByID(ctx context.Context, sec
 		return err
 	}
 	fmt.Println(section)
+
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	client, err := utils.ConnectToMongoDB(mongoURI)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	exhibitionCollection := client.Database("atommuse").Collection("exhibitions")
+
+	// Define the filter to match the main exhibition document
+	mainExhibitionFilter := bson.M{"_id": section.ExhibitionID}
+	fmt.Println(mainExhibitionFilter)
+
+	// Define the update to pull the sectionID from the array
+	update := bson.M{"$pull": bson.M{"exhibitionSectionsID": sectionID}}
+	fmt.Println(update)
+
+	// Perform the update operation on the main exhibition document
+	updateResult, err := exhibitionCollection.UpdateMany(ctx, mainExhibitionFilter, update)
+	if err != nil {
+		return err
+	}
+
+	// Check if any document was modified
+	if updateResult.ModifiedCount == 0 {
+		return fmt.Errorf("exhibitionSection not found for ID %s", sectionID)
+	}
 
 	// Perform the deletion
 	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
