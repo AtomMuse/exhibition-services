@@ -92,17 +92,54 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		}
 		return nil, err
 	}
+
 	if exhibition.LayoutUsed == "blogLayout" {
+
 		// Find sections related to the exhibition
-		sections, err := r.GetSectionsByExhibitionID(ctx, objID)
+		mongoURI := os.Getenv("MONGO_URI")
+		if mongoURI == "" {
+			log.Fatal("MONGO_URI environment variable not set.")
+		}
+		log.Println("MongoURI:", mongoURI)
+
+		client, err := connectToMongoDB(mongoURI)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving sections for exhibition: %w", err)
+			log.Fatal("Error connecting to MongoDB:", err)
+		}
+		defer func() {
+			if err := client.Disconnect(context.Background()); err != nil {
+				log.Println("Error disconnecting from MongoDB:", err)
+			}
+		}()
+
+		// Specify the collection names
+		sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
+
+		// Loop through exhibition section IDs
+		var sections []model.ExhibitionSection
+		for _, sectionID := range exhibition.ExhibitionSectionsID {
+			// Convert sectionID to ObjectID
+			sectionObjID, err := primitive.ObjectIDFromHex(sectionID)
+			if err != nil {
+				return nil, err
+			}
+
+			// Find section by ID
+			var section model.ExhibitionSection
+			err = sectionCollection.FindOne(ctx, bson.M{"_id": sectionObjID}).Decode(&section)
+			if err != nil {
+				if errors.Is(err, mongo.ErrNoDocuments) {
+					return nil, errors.New("section not found")
+				}
+				return nil, err
+			}
+
+			sections = append(sections, section)
 		}
 
 		// Assign sections to the exhibition
 		exhibition.ExhibitionSections = sections
 	}
-
 	return &exhibition, nil
 }
 
@@ -270,6 +307,51 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 			// Handle error
 			fmt.Println("err2", err)
 		}
+	}
+
+	mongoURIcomment := os.Getenv("MONGO_URI_COMMENT")
+	if mongoURIcomment == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURIcomment)
+
+	clientComment, err := connectToMongoDB(mongoURIcomment)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := clientComment.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+
+	// Specify the collection names
+	commentCollection := clientComment.Database("atommuse-comment").Collection("comments")
+
+	// Now, call DeleteCommentsByExhibitionID from commentrepo
+	// commentRepo := commentrepo.CommentRepository{Collection: commentCollection}
+	exhibitionObjectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return fmt.Errorf("invalid exhibition ID format: %v", err)
+	}
+
+	// Check if there are any comments to delete
+	numComments, err := commentCollection.CountDocuments(ctx, bson.M{"exhibitionID": exhibitionObjectID})
+	if err != nil {
+		return fmt.Errorf("error counting comments for exhibition: %v", err)
+	}
+
+	fmt.Println(numComments)
+
+	if numComments > 0 {
+		// If there are comments, delete them
+		if _, err := commentCollection.DeleteMany(ctx, bson.M{"exhibitionID": exhibitionObjectID}); err != nil {
+			return fmt.Errorf("error deleting comments for exhibition: %v", err)
+		}
+		fmt.Println("Deleted comments for exhibition ID:", exhibitionID)
+	} else {
+		// If there are no comments, continue execution without error
+		log.Printf("No comments found for exhibition ID: %s", exhibitionID)
 	}
 
 	return nil
