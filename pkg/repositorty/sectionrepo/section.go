@@ -73,7 +73,6 @@ func (r *SectionRepository) DeleteExhibitionSectionByID(ctx context.Context, sec
 	if err := cursor.Decode(&section); err != nil {
 		return err
 	}
-	fmt.Println(section)
 
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
@@ -96,11 +95,9 @@ func (r *SectionRepository) DeleteExhibitionSectionByID(ctx context.Context, sec
 
 	// Define the filter to match the main exhibition document
 	mainExhibitionFilter := bson.M{"_id": section.ExhibitionID}
-	fmt.Println(mainExhibitionFilter)
 
 	// Define the update to pull the sectionID from the array
 	update := bson.M{"$pull": bson.M{"exhibitionSectionsID": sectionID}}
-	fmt.Println(update)
 
 	// Perform the update operation on the main exhibition document
 	updateResult, err := exhibitionCollection.UpdateMany(ctx, mainExhibitionFilter, update)
