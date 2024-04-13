@@ -196,7 +196,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.DELETE("/sections/:id", authMiddleware("exhibitor"), sectionHandler.DeleteExhibitionSectionByID)
 		api.GET("/sections/:id", authMiddleware("exhibitor"), sectionHandler.GetExhibitionSectionByID)
 		api.GET("/sections/all", authMiddleware("admin"), sectionHandler.GetAllExhibitionSections)
-		api.GET("/exhibitions/:id/sections", authMiddleware("admin"), sectionHandler.GetSectionsByExhibitionID)
+		api.GET("/exhibitions/:id/sections", authMiddleware("exhibitor"), sectionHandler.GetSectionsByExhibitionID)
 		api.PUT("/sections/:id", authMiddleware("exhibitor"), sectionHandler.UpdateExhibitionSection)
 		//like & Unlike
 		api.PUT("/exhibitions/:id/like", authMiddleware("exhibitor"), exhibitionHandler.LikeExhibition)
