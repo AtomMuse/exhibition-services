@@ -293,6 +293,47 @@
                 }
             }
         },
+        "/api/exhibitions/{id}/ban": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "BanExhibition by exhibitionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ban"
+                ],
+                "summary": "BanExhibition",
+                "operationId": "BanExhibition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitions/{id}/like": {
             "put": {
                 "security": [

@@ -28,13 +28,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//	@Title						Exhibition Service API
-//	@Version					v0
-//	@Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-//	@Schemes					http
-//	@SecurityDefinitions.apikey	BearerAuth
-//	@In							header
-//	@Name						Authorization
+// @Title						Exhibition Service API
+// @Version					v0
+// @Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+// @Schemes					http
+// @SecurityDefinitions.apikey	BearerAuth
+// @In							header
+// @Name						Authorization
 func main() {
 	initializeEnvironment()
 
@@ -181,7 +181,8 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		//like & Unlike
 		api.PUT("/exhibitions/:id/like", authMiddleware("exhibitor"), exhibitionHandler.LikeExhibition)
 		api.PUT("/exhibitions/:id/unlike", authMiddleware("exhibitor"), exhibitionHandler.UnlikeExhibition)
-
+		//ban
+		api.POST("/exhibitions/:id/ban", authMiddleware("admin"), exhibitionHandler.BanExhibition)
 	}
 
 	return router

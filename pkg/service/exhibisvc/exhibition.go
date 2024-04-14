@@ -25,6 +25,7 @@ type IExhibitionServices interface {
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
+	BanExhibition(ctx context.Context, exhibitionID string) error
 }
 
 // ExhibitionServices is the implementation of the IExhibitionServices interface.
@@ -86,4 +87,7 @@ func (service ExhibitionServices) GetUpcomingExhibitions(ctx context.Context) ([
 }
 func (service ExhibitionServices) GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error) {
 	return service.Repository.GetExhibitionsByFilter(ctx, category, status, sortOrder)
+}
+func (s *ExhibitionServices) BanExhibition(ctx context.Context, exhibitionID string) error {
+	return s.Repository.BanExhibition(ctx, exhibitionID)
 }

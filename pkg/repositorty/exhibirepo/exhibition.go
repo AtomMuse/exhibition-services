@@ -32,6 +32,7 @@ type IExhibitionRepository interface {
 	GetUpcomingExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionsByFilter(ctx context.Context, category, status, sortOrder string) ([]model.ResponseExhibition, error)
 	GetExhibitionSectionInfo(ctx context.Context, exhibitionID string) ([]model.ExhibitionSectionInfo, error)
+	BanExhibition(ctx context.Context, exhibitionID string) error
 }
 
 // ExhibitionRepository is the MongoDB implementation of the Repository interface.
@@ -384,6 +385,7 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 		"exhibitionSectionsID":  update.ExhibitionSectionsID,
 		"visitedNumber":         update.VisitedNumber,
 		"rooms":                 update.Room,
+		"status":                update.Status,
 	}
 
 	// Perform the update operation
@@ -460,7 +462,7 @@ func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID
 		return nil, err
 	}
 	// Define the filter for the query
-	filter := bson.M{"userId.userId": objectID, "status": "created"}
+	filter := bson.M{"userId.userId": objectID}
 
 	// Execute the find query
 	cursor, err := r.Collection.Find(ctx, filter)
@@ -673,4 +675,14 @@ func (r *ExhibitionRepository) GetExhibitionSectionInfo(ctx context.Context, exh
 	}
 
 	return infos, nil
+}
+
+// BanExhibition bans an exhibition by ID
+func (r *ExhibitionRepository) BanExhibition(ctx context.Context, exhibitionID string) error {
+	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
+	if err != nil {
+		return err
+	}
+	_, err = r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": bson.M{"status": "banned"}})
+	return err
 }
