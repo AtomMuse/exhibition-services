@@ -86,7 +86,7 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 
 	// Find exhibition by ID
 	var exhibition model.ResponseExhibition
-	err = r.Collection.FindOne(ctx, bson.M{"_id": objID, "status": "created"}).Decode(&exhibition)
+	err = r.Collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&exhibition)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, errors.New("exhibition not found")
@@ -489,7 +489,7 @@ func (r *ExhibitionRepository) GetExhibitionByUserID(ctx context.Context, userID
 
 func (r *ExhibitionRepository) GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error) {
 	// Define the match stage for the aggregation pipeline
-	matchStage := bson.M{"$match": bson.M{"exhibitionCategories": category, "isPublic": true}}
+	matchStage := bson.M{"$match": bson.M{"exhibitionCategories": category, "isPublic": true, "status": "created"}}
 
 	// Define the sort stage for the aggregation pipeline
 	sortStage := bson.M{"$sort": bson.M{"startDate": 1}}
@@ -580,6 +580,7 @@ func (r *ExhibitionRepository) GetExhibitionsByFilter(ctx context.Context, categ
 	matchStage := bson.M{"$match": bson.M{
 		"exhibitionCategories": category,
 		"isPublic":             true,
+		"status":               "created",
 	}}
 
 	// Add status filtering
