@@ -126,6 +126,8 @@ func authMiddleware(role string) gin.HandlerFunc {
 		c.Set("user_image", claims.ProfileImage)
 		c.Set("user_username", claims.UserName)
 
+		fmt.Println("User ID:", claims.ID)
+
 		// Check if the role admin
 		if claims.Role == "admin" {
 			c.Next()
@@ -177,7 +179,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.GET("/:userId/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.GetExhibitionByUserID)
 		api.POST("/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.CreateExhibition)
 		api.DELETE("/exhibitions/:id", authMiddleware("exhibitor"), exhibitionHandler.DeleteExhibition)
-		api.PUT("/exhibitions/:id", exhibitionHandler.UpdateExhibition)
+		api.PUT("/exhibitions/:id", authMiddleware("exhibitor"), exhibitionHandler.UpdateExhibition)
 		//ExhibitionSections
 		api.POST("/sections", authMiddleware("exhibitor"), sectionHandler.CreateExhibitionSection)
 		api.DELETE("/sections/:id", authMiddleware("exhibitor"), sectionHandler.DeleteExhibitionSectionByID)

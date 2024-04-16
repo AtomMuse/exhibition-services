@@ -38,7 +38,13 @@ func (h *Handler) UpdateExhibition(c *gin.Context) {
 	var validate = validator.New()
 	var updateRequest model.RequestUpdateExhibition
 
-	updateRequest.UserID.UserID = userID.(primitive.ObjectID)
+	// Check if userID is nil or not of type primitive.ObjectID
+	objectID, ok := userID.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID is invalid"})
+		return
+	}
+	updateRequest.UserID.UserID = objectID
 	updateRequest.UserID.FirstName = firstName.(string)
 	updateRequest.UserID.LastName = lastName.(string)
 	updateRequest.UserID.ProfileImage = profileImage.(string)
@@ -61,11 +67,14 @@ func (h *Handler) UpdateExhibition(c *gin.Context) {
 	}
 
 	// Call use case to update exhibition
-	objectID, err := h.ExhibitionService.UpdateExhibition(c.Request.Context(), exhibitionID, &updateRequest)
+	updatedObjectID, err := h.ExhibitionService.UpdateExhibition(c.Request.Context(), exhibitionID, &updateRequest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update exhibition"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"_id": objectID.Hex(), "message": "Exhibition updated successfully"})
+	// Convert updatedObjectID from pointer to primitive.ObjectID
+	objectIDValue := *updatedObjectID
+
+	c.JSON(http.StatusOK, gin.H{"_id": objectIDValue.Hex(), "message": "Exhibition updated successfully"})
 }
