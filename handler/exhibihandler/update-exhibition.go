@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UpdateExhibition godoc
@@ -25,9 +26,23 @@ import (
 //	@Failure		500				{object}	helper.APIError	"Internal server error"
 //	@Router			/api/exhibitions/{id} [put]
 func (h *Handler) UpdateExhibition(c *gin.Context) {
+
+	// Get user information from request context
+	userID, _ := c.Get("user_id")
+	firstName, _ := c.Get("user_first_name")
+	lastName, _ := c.Get("user_last_name")
+	profileImage, _ := c.Get("user_image")
+	username, _ := c.Get("user_username")
+
 	exhibitionID := c.Param("id") // assuming exhibition ID is part of the URL
 	var validate = validator.New()
 	var updateRequest model.RequestUpdateExhibition
+
+	updateRequest.UserID.UserID = userID.(primitive.ObjectID)
+	updateRequest.UserID.FirstName = firstName.(string)
+	updateRequest.UserID.LastName = lastName.(string)
+	updateRequest.UserID.ProfileImage = profileImage.(string)
+	updateRequest.UserID.Username = username.(string)
 
 	// Parse request body
 	if err := c.BindJSON(&updateRequest); err != nil {
