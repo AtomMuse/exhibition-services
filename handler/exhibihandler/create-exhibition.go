@@ -8,22 +8,37 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-//	@Summary		Create a new exhibition
-//	@Description	Create a new exhibition data
-//	@Tags			Exhibitions
-//	@Security		BearerAuth
-//	@ID				CreateExhibition
-//	@Accept			json
-//	@Produce		json
-//	@Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
-//	@Success		201					{object}	model.ResponseGetExhibitionId	"Success"
-//	@Failure		400					{object}	helper.APIError					"Invalid request body"
-//	@Router			/api/exhibitions [post]
+// @Summary		Create a new exhibition
+// @Description	Create a new exhibition data
+// @Tags			Exhibitions
+// @Security		BearerAuth
+// @ID				CreateExhibition
+// @Accept			json
+// @Produce		json
+// @Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
+// @Success		201					{object}	model.ResponseGetExhibitionId	"Success"
+// @Failure		400					{object}	helper.APIError					"Invalid request body"
+// @Router			/api/exhibitions [post]
 func (h *Handler) CreateExhibition(c *gin.Context) {
+
+	// Get user information from request context
+	userID, _ := c.Get("user_id")
+	firstName, _ := c.Get("user_first_name")
+	lastName, _ := c.Get("user_last_name")
+	profileImage, _ := c.Get("user_image")
+	username, _ := c.Get("user_username")
+
 	var requestExhibition model.RequestCreateExhibition
 	var validate = validator.New()
+
+	requestExhibition.UserID.UserID = userID.(primitive.ObjectID)
+	requestExhibition.UserID.FirstName = firstName.(string)
+	requestExhibition.UserID.LastName = lastName.(string)
+	requestExhibition.UserID.ProfileImage = profileImage.(string)
+	requestExhibition.UserID.Username = username.(string)
 
 	// Parse request body
 	if err := c.BindJSON(&requestExhibition); err != nil {

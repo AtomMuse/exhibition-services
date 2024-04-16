@@ -7,10 +7,11 @@ import (
 
 // UserID represents user identification data.
 type UserID struct {
-	UserID    primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
-	FirstName string             `bson:"firstName,omitempty" json:"firstName,omitempty"`
-	LastName  string             `bson:"lastName,omitempty" json:"lastName,omitempty"`
-	Username  string             `bson:"username,omitempty" json:"username,omitempty"`
+	UserID       primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty" validate:"required"`
+	FirstName    string             `bson:"firstName,omitempty" json:"firstName,omitempty"`
+	LastName     string             `bson:"lastName,omitempty" json:"lastName,omitempty"`
+	Username     string             `bson:"username,omitempty" json:"username,omitempty"`
+	ProfileImage string             `json:"profile,omitempty" bson:"profile,omitempty"`
 }
 
 // ExhibitionSection represents the structure of an exhibition section.
@@ -211,10 +212,11 @@ type RequestUpdateExhibitionSection struct {
 
 // jwtCustomClaims represents the custom claims of a JWT token
 type JwtCustomClaims struct {
-	Role         string `json:"role"`
-	UserName     string `json:"username" bson:"username"`
-	FirstName    string `json:"firstname" bson:"firstname"`
-	LastName     string `json:"lastname" bson:"lastname"`
-	ProfileImage string `json:"profile,omitempty" bson:"profile,omitempty"`
+	ID           primitive.ObjectID `json:"userID" bson:"userID"`
+	Role         string             `json:"role"`
+	UserName     string             `json:"username" bson:"username"`
+	FirstName    string             `json:"firstname" bson:"firstname"`
+	LastName     string             `json:"lastname" bson:"lastname"`
+	ProfileImage string             `json:"profile,omitempty" bson:"profile,omitempty"`
 	jwt.StandardClaims
 }

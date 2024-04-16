@@ -119,6 +119,13 @@ func authMiddleware(role string) gin.HandlerFunc {
 			return
 		}
 
+		// Set user ID in context
+		c.Set("user_id", claims.ID)
+		c.Set("user_first_name", claims.FirstName)
+		c.Set("user_last_name", claims.LastName)
+		c.Set("user_image", claims.ProfileImage)
+		c.Set("user_username", claims.UserName)
+
 		// Check if the role admin
 		if claims.Role == "admin" {
 			c.Next()
