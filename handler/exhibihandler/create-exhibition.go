@@ -31,6 +31,8 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	profileImage, _ := c.Get("user_image")
 	username, _ := c.Get("user_username")
 
+	fmt.Println(profileImage)
+
 	var requestExhibition model.RequestCreateExhibition
 	var validate = validator.New()
 
