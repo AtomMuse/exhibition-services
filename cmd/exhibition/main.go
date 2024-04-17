@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
@@ -24,6 +25,7 @@ import (
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -59,8 +61,54 @@ func main() {
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
-	log.Println("Server started on :8080")
-	log.Fatal(router.Run(":8080"))
+	// Start the HTTP server in a goroutine
+	go func() {
+		log.Println("Server started on :8080")
+		log.Fatal(router.Run(":8080"))
+	}()
+
+	// Set the time zone to Asia/Bangkok (UTC+7)
+	location, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Run the scheduler
+	for {
+		// Get the current time in the specified time zone
+		currentTime := time.Now().In(location)
+
+		// Parse the current time into string
+		currentTimeString := currentTime.Format(time.RFC3339)
+		fmt.Println("time now:", currentTimeString)
+
+		// Define the database and collection
+		db := client.Database("atommuse")
+		collection := db.Collection("exhibitions")
+
+		// Find exhibitions where endDate has passed
+		filterEndDate := bson.M{"endDate": bson.M{"$lt": currentTimeString}}
+		updateEndDate := bson.M{"$set": bson.M{"isPublic": false}}
+		updateResultEndDate, err := collection.UpdateMany(context.Background(), filterEndDate, updateEndDate)
+		if err != nil {
+			log.Println("Error updating endDate:", err)
+		} else {
+			log.Printf("Updated %d documents where endDate has passed", updateResultEndDate.ModifiedCount)
+		}
+
+		// Find exhibitions where startDate is equal to the current time
+		// filterStartDate := bson.M{"startDate": currentTimeString}
+		// updateStartDate := bson.M{"$set": bson.M{"isPublic": true}}
+		// updateResultStartDate, err := collection.UpdateMany(context.Background(), filterStartDate, updateStartDate)
+		// if err != nil {
+		// 	log.Println("Error updating startDate:", err)
+		// } else {
+		// 	log.Printf("Updated %d documents where startDate is equal to current time", updateResultStartDate.ModifiedCount)
+		// }
+
+		// Sleep for a period before running the scheduler again
+		time.Sleep(1 * time.Minute) // Adjust the duration as needed
+	}
 }
 
 // initializeEnvironment initializes environment variables from .env file
