@@ -7,6 +7,8 @@ services:
     build:
       context: ./
       dockerfile: ./dockerfile/Dockerfile
+    environment:
+      - TZ=Asia/Bangkok
     ports:
       - '8080:8080'
     env_file:

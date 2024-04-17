@@ -1,6 +1,6 @@
 # Use the official Golang image as a base image
 FROM golang:1.19-alpine AS builder
-
+ENV TZ=Asia/Bangkok
 # Set the working directory inside the container
 WORKDIR /app
 
