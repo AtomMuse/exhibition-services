@@ -107,7 +107,7 @@ func main() {
 		// }
 
 		// Sleep for a period before running the scheduler again
-		time.Sleep(1 * time.Minute) // Adjust the duration as needed
+		time.Sleep(4 * time.Hour) // Adjust the duration as needed
 	}
 }
 
