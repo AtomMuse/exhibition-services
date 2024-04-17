@@ -1,6 +1,6 @@
 # Use the official Golang image as a base image
 FROM golang:1.19-alpine AS builder
-ENV TZ=Asia/Bangkok
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -22,6 +22,11 @@ COPY --from=builder /my-exhibition-app .
 
 # Copy the .env file
 COPY .env .
+
+# Set the time zone
+RUN apk add --no-cache tzdata && \
+    ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime && \
+    echo "Asia/Bangkok" > /etc/timezone
 
 # Expose the port the application runs on
 EXPOSE 8080
