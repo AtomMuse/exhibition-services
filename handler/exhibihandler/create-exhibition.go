@@ -39,6 +39,7 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	requestExhibition.UserID.LastName = lastName.(string)
 	requestExhibition.UserID.ProfileImage = profileImage.(string)
 	requestExhibition.UserID.Username = username.(string)
+	requestExhibition.IsLike = false
 
 	// Parse request body
 	if err := c.BindJSON(&requestExhibition); err != nil {

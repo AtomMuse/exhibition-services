@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,15 +18,15 @@ import (
 
 type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
-	LikeExhibition(ctx context.Context, exhibitionID string) error
-	UnlikeExhibition(ctx context.Context, exhibitionID string) error
+	LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
+	UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
 	GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error)
 	GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
@@ -77,7 +78,8 @@ func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.R
 }
 
 // GetExhibitionByID retrieves an exhibition by its ID along with its sections.
-func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
+func (r *ExhibitionRepository) GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error) {
+
 	// Convert exhibitionID to ObjectID
 	objID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -93,7 +95,16 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		}
 		return nil, err
 	}
-	fmt.Println("hi: ")
+
+	// Check if userID is in the likeList
+	isLiked := false
+	for _, id := range exhibition.LikeList {
+		if id == userID {
+			isLiked = true
+			break
+		}
+	}
+	exhibition.IsLike = isLiked
 
 	if exhibition.LayoutUsed == "blogLayout" {
 
@@ -119,10 +130,8 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 
 		// Loop through exhibition section IDs
 		var sections []model.ExhibitionSection
-		fmt.Println("ex: ", exhibition.ExhibitionSectionsID)
 
 		for _, sectionID := range exhibition.ExhibitionSectionsID {
-			fmt.Println("sectionID: ", sectionID)
 			// Convert sectionID to ObjectID
 			sectionObjID, err := primitive.ObjectIDFromHex(sectionID)
 			if err != nil {
@@ -145,6 +154,58 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		// Assign sections to the exhibition
 		exhibition.ExhibitionSections = sections
 	}
+
+	if exhibition.LayoutUsed == "liveLayout" {
+
+		// Find rooms related to the exhibition
+		mongoURI := os.Getenv("MONGO_URI")
+		if mongoURI == "" {
+			log.Fatal("MONGO_URI environment variable not set.")
+		}
+		log.Println("MongoURI:", mongoURI)
+
+		client, err := utils.ConnectToMongoDB(mongoURI)
+		if err != nil {
+			log.Fatal("Error connecting to MongoDB:", err)
+		}
+		defer func() {
+			if err := client.Disconnect(context.Background()); err != nil {
+				log.Println("Error disconnecting from MongoDB:", err)
+			}
+		}()
+
+		// Specify the collection names
+		roomCollection := client.Database("atommuse").Collection("exhibitionRooms")
+
+		// Loop through exhibition room IDs
+		var rooms []model.Room
+		fmt.Println("ex Roomid: ", exhibition.RoomsID)
+
+		for _, roomID := range exhibition.RoomsID {
+			fmt.Println("roomID: ", roomID)
+			// Convert roomID to ObjectID
+			roomObjID, err := primitive.ObjectIDFromHex(roomID)
+			if err != nil {
+				return nil, err
+			}
+
+			// Find room by ID
+			var room model.Room
+			err = roomCollection.FindOne(ctx, bson.M{"_id": roomObjID}).Decode(&room)
+			if err != nil {
+				if errors.Is(err, mongo.ErrNoDocuments) {
+					return nil, errors.New("room not found")
+				}
+				return nil, err
+			}
+
+			rooms = append(rooms, room)
+		}
+
+		// Assign rooms to the exhibition
+		exhibition.Room = rooms
+	}
+
 	return &exhibition, nil
 }
 
@@ -255,6 +316,23 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 	// Specify the collection names
 	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
 
+	mongoURI1 := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	clientRoom, err := utils.ConnectToMongoDB(mongoURI1)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := clientRoom.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+	roomCollection := clientRoom.Database("atommuse").Collection("exhibitionRooms")
+
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -287,6 +365,7 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 
 	// Retrieve the exhibitionSectionsIDs from the exhibition document
 	exhibitionSectionsIDs := exhibition.ExhibitionSectionsID
+	exhibitionRoomsIDs := exhibition.RoomsID
 
 	// Perform the deletion of the exhibition document
 	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
@@ -313,14 +392,28 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 			fmt.Println("err2", err)
 		}
 	}
+	// Now, delete associated room
+	for _, roomID := range exhibitionRoomsIDs {
+		roomObjectID, err := primitive.ObjectIDFromHex(roomID)
+		fmt.Println(roomObjectID)
+		if err != nil {
+			// Handle error
+			fmt.Println("err1", err)
+		}
 
-	mongoURIcomment := os.Getenv("MONGO_URI_COMMENT")
-	if mongoURIcomment == "" {
+		_, err = roomCollection.DeleteOne(ctx, bson.M{"_id": roomObjectID})
+		if err != nil {
+			// Handle error
+			fmt.Println("err2", err)
+		}
+	}
+	mongoURI2 := os.Getenv("MONGO_URI_COMMENT")
+	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set.")
 	}
-	log.Println("MongoURI:", mongoURIcomment)
+	log.Println("MongoURI:", mongoURI)
 
-	clientComment, err := utils.ConnectToMongoDB(mongoURIcomment)
+	clientComment, err := utils.ConnectToMongoDB(mongoURI2)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
 	}
@@ -329,7 +422,6 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 			log.Println("Error disconnecting from MongoDB:", err)
 		}
 	}()
-
 	// Specify the collection names
 	commentCollection := clientComment.Database("atommuse-comment").Collection("comments")
 
@@ -385,6 +477,7 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 		"exhibitionSectionsID":  update.ExhibitionSectionsID,
 		"visitedNumber":         update.VisitedNumber,
 		"rooms":                 update.Room,
+		"roomsID":               update.RoomsID,
 		"status":                update.Status,
 	}
 
@@ -423,35 +516,58 @@ func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibiti
 	return nil
 }
 
-func (r *ExhibitionRepository) LikeExhibition(ctx context.Context, exhibitionID string) error {
-	// Convert the string ID to ObjectId
+func (r *ExhibitionRepository) LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
-	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": 1}})
+
+	// Update likeCount and remove from likeList
+	result, err := r.Collection.UpdateMany(ctx, bson.M{"_id": objectID}, bson.M{
+		"$inc":  bson.M{"likeCount": 1},
+		"$push": bson.M{"likeList": userID},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update like count: %v", err)
 	}
+
+	// Debug output
+	fmt.Printf("Modified count: %d\n", result.ModifiedCount)
+
+	// Check if any document was updated
 	if result.ModifiedCount == 0 {
 		return errors.New("no documents updated")
 	}
+
 	return nil
 }
 
-func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionID string) error {
-	// Convert the string ID to ObjectId
+func (r *ExhibitionRepository) UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
-	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": -1}})
+
+	// Print the userID for debugging
+	fmt.Println("Removing userID:", userID)
+
+	// Update likeCount and remove from likeList
+	result, err := r.Collection.UpdateMany(ctx, bson.M{"_id": objectID}, bson.M{
+		"$inc":  bson.M{"likeCount": -1},
+		"$pull": bson.M{"likeList": userID},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update like count: %v", err)
 	}
+
+	// Debug output
+	fmt.Printf("Modified count: %d\n", result.ModifiedCount)
+
+	// Check if any document was updated
 	if result.ModifiedCount == 0 {
 		return errors.New("no documents updated")
 	}
+
 	return nil
 }
 

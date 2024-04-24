@@ -2,10 +2,12 @@ package exhibihandler
 
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // @Summary		Get all exhibitions
@@ -33,6 +35,7 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 // @Summary		Get exhibition by ID
 // @Description	Get exhibition data by exhibitionID
 // @Tags			Exhibitions
+// @Security		BearerAuth
 // @ID				GetExhibitionByID
 // @Produce		json
 // @Param			id	path		string	true	"Exhibition ID"
@@ -40,8 +43,26 @@ func (h *Handler) GetAllExhibitions(c *gin.Context) {
 // @Failure		500	{object}	helper.APIError	"Internal server error"
 // @Router			/api/exhibitions/{id} [get]
 func (h *Handler) GetExhibitionByID(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	var userIDString string
+	fmt.Println(userID)
+
+	if exists {
+		switch id := userID.(type) {
+		case primitive.ObjectID:
+			userIDString = id.Hex()
+		case string:
+			userIDString = id
+		default:
+			// Handle the case where userID is not a string or ObjectID
+			log.Println("User ID is not a string or ObjectID")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			return
+		}
+	}
+
 	exhibitionID := c.Param("id")
-	exhibition, err := h.ExhibitionService.GetExhibitionByID(c.Request.Context(), exhibitionID)
+	exhibition, err := h.ExhibitionService.GetExhibitionByID(c, exhibitionID, userIDString)
 	if err != nil {
 		log.Printf("Error retrieving exhibition %s: %v", exhibitionID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

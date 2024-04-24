@@ -11,11 +11,14 @@ import (
 
 	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
+	"atommuse/backend/exhibition-service/handler/roomhandler"
 	"atommuse/backend/exhibition-service/handler/sectionhandler"
 	"atommuse/backend/exhibition-service/pkg/model"
+	roomrepo "atommuse/backend/exhibition-service/pkg/repositorty/Roomrepo"
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"atommuse/backend/exhibition-service/pkg/repositorty/sectionrepo"
 	"atommuse/backend/exhibition-service/pkg/service/exhibisvc"
+	"atommuse/backend/exhibition-service/pkg/service/roomsvc"
 	"atommuse/backend/exhibition-service/pkg/service/sectionsvc"
 	"atommuse/backend/exhibition-service/pkg/utils"
 
@@ -122,72 +125,84 @@ func initializeEnvironment() {
 func authMiddleware(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
-		secretKey := os.Getenv("secret_key")
-		if token == "" {
+
+		// Check if a token is provided
+		if token != "" {
+			// Token provided, perform authentication
+			secretKey := os.Getenv("secret_key")
+
+			if !strings.HasPrefix(token, "Bearer ") {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+				c.Abort()
+				return
+			}
+
+			token = strings.TrimPrefix(token, "Bearer ")
+
+			// Parse the token
+			claims := &model.JwtCustomClaims{}
+			parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+				// Check the token signing method
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				// Return the secret key for validation
+				return []byte(secretKey), nil
+			})
+
+			// Handle token parsing errors
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + err.Error()})
+				c.Abort()
+				fmt.Println("Token parsing error:", err)
+				return
+			}
+
+			// Check if the token is valid
+			if !parsedToken.Valid {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				c.Abort()
+				fmt.Println("Invalid token")
+				return
+			}
+
+			// Set user ID in context
+			c.Set("user_id", claims.ID)
+			c.Set("user_first_name", claims.FirstName)
+			c.Set("user_last_name", claims.LastName)
+			c.Set("user_image", claims.ProfileImage)
+			c.Set("user_username", claims.UserName)
+
+			fmt.Println("User ID:", claims.ID)
+
+			// Check if the role admin
+			if claims.Role == "admin" {
+				c.Next()
+			} else if claims.Role == "exhibitor" && role != "admin" {
+				c.Next()
+			} else if claims.Role != role {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+				c.Abort()
+				fmt.Println("Insufficient permissions")
+				return
+			}
+
+			// Continue down the chain to handler etc
+			c.Next()
+		} else {
+			// No token provided, just check the role
+			if role == "" {
+				// No role specified, allow the request to proceed
+				c.Next()
+				return
+			}
+
+			// Return an error for missing token
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
 			c.Abort()
+			fmt.Println("Authorization token is required")
 			return
 		}
-
-		if !strings.HasPrefix(token, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
-			c.Abort()
-			return
-		}
-
-		token = strings.TrimPrefix(token, "Bearer ")
-
-		// Parse the token
-		claims := &model.JwtCustomClaims{}
-		parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-			// Check the token signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			// Return the secret key for validation
-
-			fmt.Println(secretKey)
-			fmt.Println(claims)
-
-			return []byte(secretKey), nil
-		})
-		// Handle token parsing errors
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + err.Error()})
-			c.Abort()
-			fmt.Println("Token parsing error:", err)
-			return
-		}
-
-		// Check if the token is valid
-		if !parsedToken.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
-			fmt.Println("Invalid token")
-			return
-		}
-
-		// Set user ID in context
-		c.Set("user_id", claims.ID)
-		c.Set("user_first_name", claims.FirstName)
-		c.Set("user_last_name", claims.LastName)
-		c.Set("user_image", claims.ProfileImage)
-		c.Set("user_username", claims.UserName)
-
-		fmt.Println("User ID:", claims.ID)
-
-		// Check if the role admin
-		if claims.Role == "admin" {
-			c.Next()
-		} else if claims.Role != role {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
-			c.Abort()
-			fmt.Println("Insufficient permissions")
-			return
-		}
-
-		// Continue down the chain to handler etc
-		c.Next()
 	}
 }
 
@@ -211,6 +226,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 	// Initialize handlers and services
 	exhibitionHandler := initExhibitionHandler(client)
 	sectionHandler := initSectionHandler(client)
+	roomHandler := initRoomHandler(client)
 
 	// Add CORS middleware
 	config := cors.DefaultConfig()
@@ -222,7 +238,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 	{
 		//Exhibitions
 		api.GET("/exhibitions/all", authMiddleware("admin"), exhibitionHandler.GetAllExhibitions)
-		api.GET("/exhibitions/:id", exhibitionHandler.GetExhibitionByID)
+		api.GET("/exhibitions/:id", authMiddleware(""), exhibitionHandler.GetExhibitionByID)
 		api.GET("/exhibitions", exhibitionHandler.GetExhibitionsIsPublic)
 		api.GET("/:userId/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.GetExhibitionByUserID)
 		api.POST("/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.CreateExhibition)
@@ -235,6 +251,13 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.GET("/sections/all", authMiddleware("admin"), sectionHandler.GetAllExhibitionSections)
 		api.GET("/exhibitions/:id/sections", authMiddleware("exhibitor"), sectionHandler.GetSectionsByExhibitionID)
 		api.PUT("/sections/:id", authMiddleware("exhibitor"), sectionHandler.UpdateExhibitionSection)
+		//Rooms
+		api.POST("/rooms", authMiddleware("exhibitor"), roomHandler.CreateExhibitionRoom)
+		api.DELETE("/rooms/:id", authMiddleware("exhibitor"), roomHandler.DeleteExhibitionRoomByID)
+		api.GET("/rooms/:id", authMiddleware("exhibitor"), roomHandler.GetExhibitionRoomByID)
+		api.GET("/rooms/all", authMiddleware("admin"), roomHandler.GetAllExhibitionRooms)
+		api.GET("/exhibitions/:id/rooms", authMiddleware("exhibitor"), roomHandler.GetRoomsByExhibitionID)
+		api.PUT("/rooms/:id", authMiddleware("exhibitor"), roomHandler.UpdateExhibitionRoom)
 		//like & Unlike
 		api.PUT("/exhibitions/:id/like", authMiddleware("exhibitor"), exhibitionHandler.LikeExhibition)
 		api.PUT("/exhibitions/:id/unlike", authMiddleware("exhibitor"), exhibitionHandler.UnlikeExhibition)
@@ -259,4 +282,12 @@ func initSectionHandler(client *mongo.Client) *sectionhandler.Handler {
 	repo := &sectionrepo.SectionRepository{Collection: dbCollection}
 	service := &sectionsvc.SectionServices{Repository: repo}
 	return &sectionhandler.Handler{SectionService: service}
+}
+
+// initRoomHandler initializes the Room handler with required dependencies
+func initRoomHandler(client *mongo.Client) *roomhandler.Handler {
+	dbCollection := client.Database("atommuse").Collection("exhibitionRooms")
+	repo := &roomrepo.RoomRepository{Collection: dbCollection}
+	service := &roomsvc.RoomServices{Repository: repo}
+	return &roomhandler.Handler{RoomService: service}
 }
