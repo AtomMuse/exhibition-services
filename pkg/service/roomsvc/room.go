@@ -2,7 +2,7 @@ package roomsvc
 
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
-	roomrepo "atommuse/backend/exhibition-service/pkg/repositorty/Roomrepo"
+	"atommuse/backend/exhibition-service/pkg/repositorty/roomrepo"
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
