@@ -11,17 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-//	@Summary		Create a new exhibition
-//	@Description	Create a new exhibition data
-//	@Tags			Exhibitions
-//	@Security		BearerAuth
-//	@ID				CreateExhibition
-//	@Accept			json
-//	@Produce		json
-//	@Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
-//	@Success		201					{object}	model.ResponseGetExhibitionId	"Success"
-//	@Failure		400					{object}	helper.APIError					"Invalid request body"
-//	@Router			/api/exhibitions [post]
+// @Summary		Create a new exhibition
+// @Description	Create a new exhibition data
+// @Tags			Exhibitions
+// @Security		BearerAuth
+// @ID				CreateExhibition
+// @Accept			json
+// @Produce		json
+// @Param			requestExhibition	body		model.RequestCreateExhibition	true	"Exhibition data to create"
+// @Success		201					{object}	model.ResponseGetExhibitionId	"Success"
+// @Failure		400					{object}	helper.APIError					"Invalid request body"
+// @Router			/api/exhibitions [post]
 func (h *Handler) CreateExhibition(c *gin.Context) {
 
 	// Get user information from request context
@@ -39,6 +39,7 @@ func (h *Handler) CreateExhibition(c *gin.Context) {
 	requestExhibition.UserID.LastName = lastName.(string)
 	requestExhibition.UserID.ProfileImage = profileImage.(string)
 	requestExhibition.UserID.Username = username.(string)
+	requestExhibition.IsLike = false
 
 	// Parse request body
 	if err := c.BindJSON(&requestExhibition); err != nil {

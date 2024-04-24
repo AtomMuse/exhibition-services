@@ -101,6 +101,7 @@ type ResponseExhibition struct {
 	VisitedNumber         int                 `bson:"visitedNumber" json:"visitedNumber"`
 	LikeCount             int                 `bson:"likeCount" json:"likeCount"`
 	LikeList              []string            `bson:"likeList,omitempty" json:"likeList,omitempty"`
+	IsLike                bool                `bson:"isLike" json:"isLike"`
 	Room                  []Room              `bson:"rooms,omitempty" json:"rooms,omitempty"`
 	RoomsID               []string            `bson:"roomsID,omitempty" json:"roomsID,omitempty"`
 	Status                string              `bson:"status" json:"status" validate:"required" error:"status is required"`
@@ -123,6 +124,7 @@ type ResponseExhibitionForDelete struct {
 	VisitedNumber         int                `bson:"visitedNumber" json:"visitedNumber"`
 	LikeCount             int                `bson:"likeCount" json:"likeCount"`
 	LikeList              []string           `bson:"likeList,omitempty" json:"likeList,omitempty"`
+	IsLike                bool               `bson:"isLike,omitempty" json:"isLike,omitempty"`
 	Room                  []Room             `bson:"rooms,omitempty" json:"rooms,omitempty"`
 	RoomsID               []string           `bson:"roomsSectionsID,omitempty" json:"roomsID,omitempty"`
 	Status                string             `bson:"status" json:"status" validate:"required" error:"status is required"`
@@ -158,6 +160,8 @@ type RequestCreateExhibition struct {
 	ExhibitionSectionsID  []string `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
 	VisitedNumber         int      `bson:"visitedNumber" json:"visitedNumber,omitempty"`
 	LikeCount             int      `bson:"likeCount" json:"likeCount,omitempty"`
+	LikeList              []string `bson:"likeList,omitempty" json:"likeList,omitempty"`
+	IsLike                bool     `bson:"isLike,omitempty" json:"isLike,omitempty"`
 	Room                  []Room   `bson:"rooms,omitempty" json:"rooms,omitempty"`
 	RoomsID               []string `bson:"roomsSectionsID,omitempty" json:"roomsID,omitempty"`
 	Status                string   `bson:"status" json:"status" validate:"required" error:"status is required"`
@@ -177,6 +181,7 @@ type RequestUpdateExhibition struct {
 	ExhibitionSectionsID  []string `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
 	VisitedNumber         int      `bson:"visitedNumber,omitempty" json:"visitedNumber,omitempty"`
 	LikeList              []string `bson:"likeList,omitempty" json:"likeList,omitempty"`
+	IsLike                bool     `bson:"isLike,omitempty" json:"isLike,omitempty"`
 	Room                  []Room   `bson:"rooms,omitempty" json:"rooms,omitempty"`
 	RoomsID               []string `bson:"roomsID,omitempty" json:"roomsID,omitempty"`
 	Status                string   `bson:"status" json:"status" validate:"required" error:"status is required"`

@@ -33,13 +33,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//	@Title						Exhibition Service API
-//	@Version					v0
-//	@Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-//	@Schemes					http
-//	@SecurityDefinitions.apikey	BearerAuth
-//	@In							header
-//	@Name						Authorization
+// @Title						Exhibition Service API
+// @Version					v0
+// @Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+// @Schemes					http
+// @SecurityDefinitions.apikey	BearerAuth
+// @In							header
+// @Name						Authorization
 func main() {
 	initializeEnvironment()
 

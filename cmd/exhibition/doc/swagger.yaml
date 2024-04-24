@@ -103,12 +103,18 @@ definitions:
         items:
           type: string
         type: array
+      isLike:
+        type: boolean
       isPublic:
         type: boolean
       layoutUsed:
         type: string
       likeCount:
         type: integer
+      likeList:
+        items:
+          type: string
+        type: array
       rooms:
         items:
           $ref: '#/definitions/model.Room'
@@ -206,10 +212,16 @@ definitions:
         items:
           type: string
         type: array
+      isLike:
+        type: boolean
       isPublic:
         type: boolean
       layoutUsed:
         type: string
+      likeList:
+        items:
+          type: string
+        type: array
       rooms:
         items:
           $ref: '#/definitions/model.Room'
@@ -304,12 +316,18 @@ definitions:
         items:
           type: string
         type: array
+      isLike:
+        type: boolean
       isPublic:
         type: boolean
       layoutUsed:
         type: string
       likeCount:
         type: integer
+      likeList:
+        items:
+          type: string
+        type: array
       rooms:
         items:
           $ref: '#/definitions/model.Room'

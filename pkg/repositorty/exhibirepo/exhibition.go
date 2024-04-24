@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,8 +25,8 @@ type IExhibitionRepository interface {
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
-	LikeExhibition(ctx context.Context, exhibitionID string) error
-	UnlikeExhibition(ctx context.Context, exhibitionID string) error
+	LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
+	UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
 	GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error)
 	GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
@@ -78,6 +79,12 @@ func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.R
 
 // GetExhibitionByID retrieves an exhibition by its ID along with its sections.
 func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
+
+	userID, ok := ctx.Value("user_id").(string)
+	if !ok {
+		userID = "000000000000000000000000"
+	}
+
 	// Convert exhibitionID to ObjectID
 	objID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -93,7 +100,16 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		}
 		return nil, err
 	}
-	fmt.Println("hi: ")
+
+	// Check if userID is in the likeList
+	isLiked := false
+	for _, id := range exhibition.LikeList {
+		if id == userID {
+			isLiked = true
+			break
+		}
+	}
+	exhibition.IsLike = isLiked
 
 	if exhibition.LayoutUsed == "blogLayout" {
 
@@ -507,35 +523,58 @@ func (r *ExhibitionRepository) UpdateVisitedNumber(ctx context.Context, exhibiti
 	return nil
 }
 
-func (r *ExhibitionRepository) LikeExhibition(ctx context.Context, exhibitionID string) error {
-	// Convert the string ID to ObjectId
+func (r *ExhibitionRepository) LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
-	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": 1}})
+
+	// Update likeCount and remove from likeList
+	result, err := r.Collection.UpdateMany(ctx, bson.M{"_id": objectID}, bson.M{
+		"$inc":  bson.M{"likeCount": 1},
+		"$push": bson.M{"likeList": userID},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update like count: %v", err)
 	}
+
+	// Debug output
+	fmt.Printf("Modified count: %d\n", result.ModifiedCount)
+
+	// Check if any document was updated
 	if result.ModifiedCount == 0 {
 		return errors.New("no documents updated")
 	}
+
 	return nil
 }
 
-func (r *ExhibitionRepository) UnlikeExhibition(ctx context.Context, exhibitionID string) error {
-	// Convert the string ID to ObjectId
+func (r *ExhibitionRepository) UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
 		return fmt.Errorf("invalid exhibition ID format: %v", err)
 	}
-	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$inc": bson.M{"likeCount": -1}})
+
+	// Print the userID for debugging
+	fmt.Println("Removing userID:", userID)
+
+	// Update likeCount and remove from likeList
+	result, err := r.Collection.UpdateMany(ctx, bson.M{"_id": objectID}, bson.M{
+		"$inc":  bson.M{"likeCount": -1},
+		"$pull": bson.M{"likeList": userID},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update like count: %v", err)
 	}
+
+	// Debug output
+	fmt.Printf("Modified count: %d\n", result.ModifiedCount)
+
+	// Check if any document was updated
 	if result.ModifiedCount == 0 {
 		return errors.New("no documents updated")
 	}
+
 	return nil
 }
 

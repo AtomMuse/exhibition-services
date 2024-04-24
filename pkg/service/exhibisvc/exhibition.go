@@ -4,7 +4,9 @@ import (
 	"atommuse/backend/exhibition-service/pkg/model"
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"context"
+	"errors"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -18,8 +20,8 @@ type IExhibitionServices interface {
 	DeleteExhibition(ctx context.Context, exhibitionID string) error
 	UpdateExhibition(ctx context.Context, exhibitionID string, update *model.RequestUpdateExhibition) (*primitive.ObjectID, error)
 	UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error
-	LikeExhibition(ctx context.Context, exhibitionID string) error
-	UnlikeExhibition(ctx context.Context, exhibitionID string) error
+	LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
+	UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error
 	GetExhibitionsByCategory(ctx context.Context, category string) ([]model.ResponseExhibition, error)
 	GetCurrentlyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetPreviouslyExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
@@ -60,12 +62,20 @@ func (service ExhibitionServices) UpdateExhibition(ctx context.Context, exhibiti
 func (service ExhibitionServices) UpdateVisitedNumber(ctx context.Context, exhibitionID string, visitedNumber int) error {
 	return service.Repository.UpdateVisitedNumber(ctx, exhibitionID, visitedNumber)
 }
-func (service ExhibitionServices) LikeExhibition(ctx context.Context, exhibitionID string) error {
-	return service.Repository.LikeExhibition(context.Background(), exhibitionID)
+func (service ExhibitionServices) LikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
+	if err := validateExhibitionID(exhibitionID); err != nil {
+		return err
+	}
+
+	return service.Repository.LikeExhibition(ctx, exhibitionID, userID)
 }
 
-func (service ExhibitionServices) UnlikeExhibition(ctx context.Context, exhibitionID string) error {
-	return service.Repository.UnlikeExhibition(context.Background(), exhibitionID)
+func (service ExhibitionServices) UnlikeExhibition(ctx *gin.Context, exhibitionID, userID string) error {
+	if err := validateExhibitionID(exhibitionID); err != nil {
+		return err
+	}
+
+	return service.Repository.UnlikeExhibition(ctx, exhibitionID, userID)
 }
 
 func (service ExhibitionServices) GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error) {
@@ -90,4 +100,11 @@ func (service ExhibitionServices) GetExhibitionsByFilter(ctx context.Context, ca
 }
 func (s *ExhibitionServices) BanExhibition(ctx context.Context, exhibitionID string) error {
 	return s.Repository.BanExhibition(ctx, exhibitionID)
+}
+
+func validateExhibitionID(exhibitionID string) error {
+	if exhibitionID == "" {
+		return errors.New("exhibitionID cannot be empty")
+	}
+	return nil
 }

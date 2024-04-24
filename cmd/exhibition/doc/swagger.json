@@ -1178,6 +1178,9 @@
                         "type": "string"
                     }
                 },
+                "isLike": {
+                    "type": "boolean"
+                },
                 "isPublic": {
                     "type": "boolean"
                 },
@@ -1186,6 +1189,12 @@
                 },
                 "likeCount": {
                     "type": "integer"
+                },
+                "likeList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "rooms": {
                     "type": "array",
@@ -1320,11 +1329,20 @@
                         "type": "string"
                     }
                 },
+                "isLike": {
+                    "type": "boolean"
+                },
                 "isPublic": {
                     "type": "boolean"
                 },
                 "layoutUsed": {
                     "type": "string"
+                },
+                "likeList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "rooms": {
                     "type": "array",
@@ -1472,6 +1490,9 @@
                         "type": "string"
                     }
                 },
+                "isLike": {
+                    "type": "boolean"
+                },
                 "isPublic": {
                     "type": "boolean"
                 },
@@ -1480,6 +1501,12 @@
                 },
                 "likeCount": {
                     "type": "integer"
+                },
+                "likeList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "rooms": {
                     "type": "array",
