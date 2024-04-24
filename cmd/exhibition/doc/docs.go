@@ -381,6 +381,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/exhibitions/{id}/rooms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get Rooms By exhibitionID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get Rooms By exhibitionID",
+                "operationId": "GetRoomsByExhibitionID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibitionRoom"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/exhibitions/{id}/sections": {
             "get": {
                 "security": [
@@ -459,6 +506,233 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.ResponseExhibition"
                         }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/rooms": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new exhibitionRoom data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Create a new exhibitionRoom",
+                "operationId": "CreateExhibitionRoom",
+                "parameters": [
+                    {
+                        "description": "ExhibitionRoom data to create",
+                        "name": "requestExhibitionRoom",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RequestCreateExhibitionRoom"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibitionRoom"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Invalid request body"
+                    }
+                }
+            }
+        },
+        "/api/rooms/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all exhibition Rooms data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get all exhibitions Rooms",
+                "operationId": "GetAllExhibitionRooms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ResponseExhibitionRoom"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/rooms/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get exhibition data by RoomID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get exhibitionRoom by ID",
+                "operationId": "GetExhibitionRoomByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exhibition Room ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibitionRoom"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update exhibitionRoom data by RoomID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Update exhibitionRoom by RoomID",
+                "operationId": "UpdateExhibitionRoom",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ExhibitionRoom ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ExhibitionRoom data to update",
+                        "name": "updateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RequestUpdateExhibitionRoom"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseExhibition"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/helper.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete Room data by RoomID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Delete Room by ID",
+                "operationId": "DeleteExhibitionRoomByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete Room Success",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseGetExhibitionId"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error",
@@ -925,6 +1199,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Room"
                     }
                 },
+                "roomsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "startDate": {
                     "type": "string"
                 },
@@ -939,6 +1219,38 @@ const docTemplate = `{
                 },
                 "visitedNumber": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.RequestCreateExhibitionRoom": {
+            "type": "object",
+            "required": [
+                "exhibitionId"
+            ],
+            "properties": {
+                "center": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CenterItem"
+                    }
+                },
+                "exhibitionId": {
+                    "type": "string"
+                },
+                "left": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
+                },
+                "mapThumbnail": {
+                    "type": "string"
+                },
+                "right": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
                 }
             }
         },
@@ -1026,6 +1338,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Room"
                     }
                 },
+                "roomsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "startDate": {
                     "type": "string"
                 },
@@ -1040,6 +1358,38 @@ const docTemplate = `{
                 },
                 "visitedNumber": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.RequestUpdateExhibitionRoom": {
+            "type": "object",
+            "required": [
+                "exhibitionId"
+            ],
+            "properties": {
+                "center": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CenterItem"
+                    }
+                },
+                "exhibitionId": {
+                    "type": "string"
+                },
+                "left": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
+                },
+                "mapThumbnail": {
+                    "type": "string"
+                },
+                "right": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
                 }
             }
         },
@@ -1143,6 +1493,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Room"
                     }
                 },
+                "roomsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "startDate": {
                     "type": "string"
                 },
@@ -1157,6 +1513,41 @@ const docTemplate = `{
                 },
                 "visitedNumber": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.ResponseExhibitionRoom": {
+            "type": "object",
+            "required": [
+                "exhibitionId"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "center": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CenterItem"
+                    }
+                },
+                "exhibitionId": {
+                    "type": "string"
+                },
+                "left": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
+                },
+                "mapThumbnail": {
+                    "type": "string"
+                },
+                "right": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LeftRightItem"
+                    }
                 }
             }
         },
@@ -1246,12 +1637,22 @@ const docTemplate = `{
         },
         "model.Room": {
             "type": "object",
+            "required": [
+                "_id",
+                "exhibitionId"
+            ],
             "properties": {
+                "_id": {
+                    "type": "string"
+                },
                 "center": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.CenterItem"
                     }
+                },
+                "exhibitionId": {
+                    "type": "string"
                 },
                 "left": {
                     "type": "array",
@@ -1280,6 +1681,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "profile": {
                     "type": "string"
                 },
                 "userId": {

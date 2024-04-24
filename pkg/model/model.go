@@ -69,10 +69,12 @@ type LeftRightItem struct {
 }
 
 type Room struct {
-	MapThumbnail string          `bson:"mapThumbnail,omitempty" json:"mapThumbnail,omitempty"`
-	Left         []LeftRightItem `bson:"left,omitempty" json:"left,omitempty"`
-	Center       []CenterItem    `bson:"center,omitempty" json:"center,omitempty"`
-	Right        []LeftRightItem `bson:"right,omitempty" json:"right,omitempty"`
+	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" validate:"required"`
+	MapThumbnail string             `bson:"mapThumbnail,omitempty" json:"mapThumbnail,omitempty"`
+	Left         []LeftRightItem    `bson:"left,omitempty" json:"left,omitempty"`
+	Center       []CenterItem       `bson:"center,omitempty" json:"center,omitempty"`
+	Right        []LeftRightItem    `bson:"right,omitempty" json:"right,omitempty"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionId" validate:"required"`
 }
 
 // ExhibitionSectionInfo represents information about exhibition sections
@@ -98,7 +100,9 @@ type ResponseExhibition struct {
 	ExhibitionSections    []ExhibitionSection `bson:"exhibitionSections,omitempty" json:"exhibitionSections,omitempty" `
 	VisitedNumber         int                 `bson:"visitedNumber" json:"visitedNumber"`
 	LikeCount             int                 `bson:"likeCount" json:"likeCount"`
+	LikeList              []string            `bson:"likeList,omitempty" json:"likeList,omitempty"`
 	Room                  []Room              `bson:"rooms,omitempty" json:"rooms,omitempty"`
+	RoomsID               []string            `bson:"roomsID,omitempty" json:"roomsID,omitempty"`
 	Status                string              `bson:"status" json:"status" validate:"required" error:"status is required"`
 }
 
@@ -118,7 +122,9 @@ type ResponseExhibitionForDelete struct {
 	ExhibitionSectionsID  []string           `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
 	VisitedNumber         int                `bson:"visitedNumber" json:"visitedNumber"`
 	LikeCount             int                `bson:"likeCount" json:"likeCount"`
+	LikeList              []string           `bson:"likeList,omitempty" json:"likeList,omitempty"`
 	Room                  []Room             `bson:"rooms,omitempty" json:"rooms,omitempty"`
+	RoomsID               []string           `bson:"roomsSectionsID,omitempty" json:"roomsID,omitempty"`
 	Status                string             `bson:"status" json:"status" validate:"required" error:"status is required"`
 }
 
@@ -153,6 +159,7 @@ type RequestCreateExhibition struct {
 	VisitedNumber         int      `bson:"visitedNumber" json:"visitedNumber,omitempty"`
 	LikeCount             int      `bson:"likeCount" json:"likeCount,omitempty"`
 	Room                  []Room   `bson:"rooms,omitempty" json:"rooms,omitempty"`
+	RoomsID               []string `bson:"roomsSectionsID,omitempty" json:"roomsID,omitempty"`
 	Status                string   `bson:"status" json:"status" validate:"required" error:"status is required"`
 }
 
@@ -169,7 +176,9 @@ type RequestUpdateExhibition struct {
 	LayoutUsed            string   `bson:"layoutUsed,omitempty" json:"layoutUsed,omitempty"`
 	ExhibitionSectionsID  []string `bson:"exhibitionSectionsID,omitempty" json:"exhibitionSectionsID,omitempty"`
 	VisitedNumber         int      `bson:"visitedNumber,omitempty" json:"visitedNumber,omitempty"`
+	LikeList              []string `bson:"likeList,omitempty" json:"likeList,omitempty"`
 	Room                  []Room   `bson:"rooms,omitempty" json:"rooms,omitempty"`
+	RoomsID               []string `bson:"roomsID,omitempty" json:"roomsID,omitempty"`
 	Status                string   `bson:"status" json:"status" validate:"required" error:"status is required"`
 }
 
@@ -208,6 +217,31 @@ type RequestUpdateExhibitionSection struct {
 	RightCol     RightColumn        `bson:"rightCol,omitempty" json:"rightCol,omitempty" `
 	Images       []string           `bson:"images,omitempty" json:"images,omitempty" `
 	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionID" validate:"required"`
+}
+
+type RequestCreateExhibitionRoom struct {
+	MapThumbnail string             `bson:"mapThumbnail,omitempty" json:"mapThumbnail,omitempty"`
+	Left         []LeftRightItem    `bson:"left,omitempty" json:"left,omitempty"`
+	Center       []CenterItem       `bson:"center,omitempty" json:"center,omitempty"`
+	Right        []LeftRightItem    `bson:"right,omitempty" json:"right,omitempty"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionId" validate:"required"`
+}
+
+type ResponseExhibitionRoom struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	MapThumbnail string             `bson:"mapThumbnail,omitempty" json:"mapThumbnail,omitempty"`
+	Left         []LeftRightItem    `bson:"left,omitempty" json:"left,omitempty"`
+	Center       []CenterItem       `bson:"center,omitempty" json:"center,omitempty"`
+	Right        []LeftRightItem    `bson:"right,omitempty" json:"right,omitempty"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionId" validate:"required"`
+}
+
+type RequestUpdateExhibitionRoom struct {
+	MapThumbnail string             `bson:"mapThumbnail,omitempty" json:"mapThumbnail,omitempty"`
+	Left         []LeftRightItem    `bson:"left,omitempty" json:"left,omitempty"`
+	Center       []CenterItem       `bson:"center,omitempty" json:"center,omitempty"`
+	Right        []LeftRightItem    `bson:"right,omitempty" json:"right,omitempty"`
+	ExhibitionID primitive.ObjectID `bson:"exhibitionID" json:"exhibitionId" validate:"required"`
 }
 
 // jwtCustomClaims represents the custom claims of a JWT token

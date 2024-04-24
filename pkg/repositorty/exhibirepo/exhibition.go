@@ -145,6 +145,58 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 		// Assign sections to the exhibition
 		exhibition.ExhibitionSections = sections
 	}
+
+	if exhibition.LayoutUsed == "liveLayout" {
+
+		// Find rooms related to the exhibition
+		mongoURI := os.Getenv("MONGO_URI")
+		if mongoURI == "" {
+			log.Fatal("MONGO_URI environment variable not set.")
+		}
+		log.Println("MongoURI:", mongoURI)
+
+		client, err := utils.ConnectToMongoDB(mongoURI)
+		if err != nil {
+			log.Fatal("Error connecting to MongoDB:", err)
+		}
+		defer func() {
+			if err := client.Disconnect(context.Background()); err != nil {
+				log.Println("Error disconnecting from MongoDB:", err)
+			}
+		}()
+
+		// Specify the collection names
+		roomCollection := client.Database("atommuse").Collection("exhibitionRooms")
+
+		// Loop through exhibition room IDs
+		var rooms []model.Room
+		fmt.Println("ex Roomid: ", exhibition.RoomsID)
+
+		for _, roomID := range exhibition.RoomsID {
+			fmt.Println("roomID: ", roomID)
+			// Convert roomID to ObjectID
+			roomObjID, err := primitive.ObjectIDFromHex(roomID)
+			if err != nil {
+				return nil, err
+			}
+
+			// Find room by ID
+			var room model.Room
+			err = roomCollection.FindOne(ctx, bson.M{"_id": roomObjID}).Decode(&room)
+			if err != nil {
+				if errors.Is(err, mongo.ErrNoDocuments) {
+					return nil, errors.New("room not found")
+				}
+				return nil, err
+			}
+
+			rooms = append(rooms, room)
+		}
+
+		// Assign rooms to the exhibition
+		exhibition.Room = rooms
+	}
+
 	return &exhibition, nil
 }
 
@@ -255,6 +307,23 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 	// Specify the collection names
 	sectionCollection := client.Database("atommuse").Collection("exhibitionSections")
 
+	mongoURI1 := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable not set.")
+	}
+	log.Println("MongoURI:", mongoURI)
+
+	clientRoom, err := utils.ConnectToMongoDB(mongoURI1)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+	defer func() {
+		if err := clientRoom.Disconnect(context.Background()); err != nil {
+			log.Println("Error disconnecting from MongoDB:", err)
+		}
+	}()
+	roomCollection := clientRoom.Database("atommuse").Collection("exhibitionRooms")
+
 	// Convert the string ID to ObjectId
 	objectID, err := primitive.ObjectIDFromHex(exhibitionID)
 	if err != nil {
@@ -287,6 +356,7 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 
 	// Retrieve the exhibitionSectionsIDs from the exhibition document
 	exhibitionSectionsIDs := exhibition.ExhibitionSectionsID
+	exhibitionRoomsIDs := exhibition.RoomsID
 
 	// Perform the deletion of the exhibition document
 	deleteResult, err := r.Collection.DeleteOne(ctx, bson.M{"_id": objectID})
@@ -313,14 +383,28 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 			fmt.Println("err2", err)
 		}
 	}
+	// Now, delete associated room
+	for _, roomID := range exhibitionRoomsIDs {
+		roomObjectID, err := primitive.ObjectIDFromHex(roomID)
+		fmt.Println(roomObjectID)
+		if err != nil {
+			// Handle error
+			fmt.Println("err1", err)
+		}
 
-	mongoURIcomment := os.Getenv("MONGO_URI_COMMENT")
-	if mongoURIcomment == "" {
+		_, err = roomCollection.DeleteOne(ctx, bson.M{"_id": roomObjectID})
+		if err != nil {
+			// Handle error
+			fmt.Println("err2", err)
+		}
+	}
+	mongoURI2 := os.Getenv("MONGO_URI_COMMENT")
+	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set.")
 	}
-	log.Println("MongoURI:", mongoURIcomment)
+	log.Println("MongoURI:", mongoURI)
 
-	clientComment, err := utils.ConnectToMongoDB(mongoURIcomment)
+	clientComment, err := utils.ConnectToMongoDB(mongoURI2)
 	if err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
 	}
@@ -329,7 +413,6 @@ func (r *ExhibitionRepository) DeleteExhibition(ctx context.Context, exhibitionI
 			log.Println("Error disconnecting from MongoDB:", err)
 		}
 	}()
-
 	// Specify the collection names
 	commentCollection := clientComment.Database("atommuse-comment").Collection("comments")
 
@@ -385,6 +468,7 @@ func (r *ExhibitionRepository) UpdateExhibition(ctx context.Context, exhibitionI
 		"exhibitionSectionsID":  update.ExhibitionSectionsID,
 		"visitedNumber":         update.VisitedNumber,
 		"rooms":                 update.Room,
+		"roomsID":               update.RoomsID,
 		"status":                update.Status,
 	}
 

@@ -11,11 +11,14 @@ import (
 
 	_ "atommuse/backend/exhibition-service/cmd/exhibition/doc"
 	"atommuse/backend/exhibition-service/handler/exhibihandler"
+	"atommuse/backend/exhibition-service/handler/roomhandler"
 	"atommuse/backend/exhibition-service/handler/sectionhandler"
 	"atommuse/backend/exhibition-service/pkg/model"
+	roomrepo "atommuse/backend/exhibition-service/pkg/repositorty/Roomrepo"
 	"atommuse/backend/exhibition-service/pkg/repositorty/exhibirepo"
 	"atommuse/backend/exhibition-service/pkg/repositorty/sectionrepo"
 	"atommuse/backend/exhibition-service/pkg/service/exhibisvc"
+	"atommuse/backend/exhibition-service/pkg/service/roomsvc"
 	"atommuse/backend/exhibition-service/pkg/service/sectionsvc"
 	"atommuse/backend/exhibition-service/pkg/utils"
 
@@ -30,13 +33,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// @Title						Exhibition Service API
-// @Version					v0
-// @Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
-// @Schemes					http
-// @SecurityDefinitions.apikey	BearerAuth
-// @In							header
-// @Name						Authorization
+//	@Title						Exhibition Service API
+//	@Version					v0
+//	@Description				Exhibition Service สำหรับขอจัดการเกี่ยวกับ Exhibition ทั้งการสร้าง แก้ไข ลบ exhibition
+//	@Schemes					http
+//	@SecurityDefinitions.apikey	BearerAuth
+//	@In							header
+//	@Name						Authorization
 func main() {
 	initializeEnvironment()
 
@@ -211,6 +214,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 	// Initialize handlers and services
 	exhibitionHandler := initExhibitionHandler(client)
 	sectionHandler := initSectionHandler(client)
+	roomHandler := initRoomHandler(client)
 
 	// Add CORS middleware
 	config := cors.DefaultConfig()
@@ -235,6 +239,13 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 		api.GET("/sections/all", authMiddleware("admin"), sectionHandler.GetAllExhibitionSections)
 		api.GET("/exhibitions/:id/sections", authMiddleware("exhibitor"), sectionHandler.GetSectionsByExhibitionID)
 		api.PUT("/sections/:id", authMiddleware("exhibitor"), sectionHandler.UpdateExhibitionSection)
+		//Rooms
+		api.POST("/rooms", authMiddleware("exhibitor"), roomHandler.CreateExhibitionRoom)
+		api.DELETE("/rooms/:id", authMiddleware("exhibitor"), roomHandler.DeleteExhibitionRoomByID)
+		api.GET("/rooms/:id", authMiddleware("exhibitor"), roomHandler.GetExhibitionRoomByID)
+		api.GET("/rooms/all", authMiddleware("admin"), roomHandler.GetAllExhibitionRooms)
+		api.GET("/exhibitions/:id/rooms", authMiddleware("exhibitor"), roomHandler.GetRoomsByExhibitionID)
+		api.PUT("/rooms/:id", authMiddleware("exhibitor"), roomHandler.UpdateExhibitionRoom)
 		//like & Unlike
 		api.PUT("/exhibitions/:id/like", authMiddleware("exhibitor"), exhibitionHandler.LikeExhibition)
 		api.PUT("/exhibitions/:id/unlike", authMiddleware("exhibitor"), exhibitionHandler.UnlikeExhibition)
@@ -259,4 +270,12 @@ func initSectionHandler(client *mongo.Client) *sectionhandler.Handler {
 	repo := &sectionrepo.SectionRepository{Collection: dbCollection}
 	service := &sectionsvc.SectionServices{Repository: repo}
 	return &sectionhandler.Handler{SectionService: service}
+}
+
+// initRoomHandler initializes the Room handler with required dependencies
+func initRoomHandler(client *mongo.Client) *roomhandler.Handler {
+	dbCollection := client.Database("atommuse").Collection("exhibitionRooms")
+	repo := &roomrepo.RoomRepository{Collection: dbCollection}
+	service := &roomsvc.RoomServices{Repository: repo}
+	return &roomhandler.Handler{RoomService: service}
 }

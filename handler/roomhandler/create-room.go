@@ -1,4 +1,4 @@
-package sectionhandler
+package roomhandler
 
 import (
 	"atommuse/backend/exhibition-service/pkg/model"
@@ -9,34 +9,34 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-//	@Summary		Create a new exhibitionSection
-//	@Description	Create a new exhibitionSection data
-//	@Tags			Sections
+//	@Summary		Create a new exhibitionRoom
+//	@Description	Create a new exhibitionRoom data
+//	@Tags			Rooms
 //	@Security		BearerAuth
 //
-//	@ID				CreateExhibitionSection
+//	@ID				CreateExhibitionRoom
 //
 //	@Accept			json
 //	@Produce		json
-//	@Param			requestExhibitionSection	body		model.RequestCreateExhibitionSection	true	"ExhibitionSection data to create"
-//	@Success		201							{object}	model.ResponseGetExhibitionSectionId	"Success"
-//	@Failure		400							{object}	helper.APIError
+//	@Param			requestExhibitionRoom	body		model.RequestCreateExhibitionRoom	true	"ExhibitionRoom data to create"
+//	@Success		201						{object}	model.ResponseExhibitionRoom		"Success"
+//	@Failure		400						{object}	helper.APIError
 //	@Failure		401
 //	@Failure		500	"Invalid request body"
-//	@Router			/api/sections [post]
-func (h *Handler) CreateExhibitionSection(c *gin.Context) {
-	var requestExhibitionSection model.RequestCreateExhibitionSection
+//	@Router			/api/rooms [post]
+func (h *Handler) CreateExhibitionRoom(c *gin.Context) {
+	var requestExhibitionRoom model.RequestCreateExhibitionRoom
 	var validate = validator.New()
 
 	// Parse request body
-	if err := c.BindJSON(&requestExhibitionSection); err != nil {
+	if err := c.BindJSON(&requestExhibitionRoom); err != nil {
 		fmt.Println("Error binding JSON:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Invalid request body"})
 		return
 	}
 
 	// Validate the request body
-	if err := validate.Struct(requestExhibitionSection); err != nil {
+	if err := validate.Struct(requestExhibitionRoom); err != nil {
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, fmt.Sprintf("%s %s", err.Field(), err.Tag()))
@@ -46,7 +46,7 @@ func (h *Handler) CreateExhibitionSection(c *gin.Context) {
 	}
 
 	// Call use case to create exhibition
-	objectID, err := h.SectionService.CreateExhibitionSection(c.Request.Context(), &requestExhibitionSection)
+	objectID, err := h.RoomService.CreateExhibitionRoom(c.Request.Context(), &requestExhibitionRoom)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "Failed to create exhibition"})
 		return
