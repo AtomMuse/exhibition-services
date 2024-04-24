@@ -125,72 +125,84 @@ func initializeEnvironment() {
 func authMiddleware(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
-		secretKey := os.Getenv("secret_key")
-		if token == "" {
+
+		// Check if a token is provided
+		if token != "" {
+			// Token provided, perform authentication
+			secretKey := os.Getenv("secret_key")
+
+			if !strings.HasPrefix(token, "Bearer ") {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+				c.Abort()
+				return
+			}
+
+			token = strings.TrimPrefix(token, "Bearer ")
+
+			// Parse the token
+			claims := &model.JwtCustomClaims{}
+			parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+				// Check the token signing method
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				// Return the secret key for validation
+				return []byte(secretKey), nil
+			})
+
+			// Handle token parsing errors
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + err.Error()})
+				c.Abort()
+				fmt.Println("Token parsing error:", err)
+				return
+			}
+
+			// Check if the token is valid
+			if !parsedToken.Valid {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				c.Abort()
+				fmt.Println("Invalid token")
+				return
+			}
+
+			// Set user ID in context
+			c.Set("user_id", claims.ID)
+			c.Set("user_first_name", claims.FirstName)
+			c.Set("user_last_name", claims.LastName)
+			c.Set("user_image", claims.ProfileImage)
+			c.Set("user_username", claims.UserName)
+
+			fmt.Println("User ID:", claims.ID)
+
+			// Check if the role admin
+			if claims.Role == "admin" {
+				c.Next()
+			} else if claims.Role == "exhibitor" && role != "admin" {
+				c.Next()
+			} else if claims.Role != role {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+				c.Abort()
+				fmt.Println("Insufficient permissions")
+				return
+			}
+
+			// Continue down the chain to handler etc
+			c.Next()
+		} else {
+			// No token provided, just check the role
+			if role == "" {
+				// No role specified, allow the request to proceed
+				c.Next()
+				return
+			}
+
+			// Return an error for missing token
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
 			c.Abort()
+			fmt.Println("Authorization token is required")
 			return
 		}
-
-		if !strings.HasPrefix(token, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
-			c.Abort()
-			return
-		}
-
-		token = strings.TrimPrefix(token, "Bearer ")
-
-		// Parse the token
-		claims := &model.JwtCustomClaims{}
-		parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-			// Check the token signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			// Return the secret key for validation
-
-			fmt.Println(secretKey)
-			fmt.Println(claims)
-
-			return []byte(secretKey), nil
-		})
-		// Handle token parsing errors
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + err.Error()})
-			c.Abort()
-			fmt.Println("Token parsing error:", err)
-			return
-		}
-
-		// Check if the token is valid
-		if !parsedToken.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
-			fmt.Println("Invalid token")
-			return
-		}
-
-		// Set user ID in context
-		c.Set("user_id", claims.ID)
-		c.Set("user_first_name", claims.FirstName)
-		c.Set("user_last_name", claims.LastName)
-		c.Set("user_image", claims.ProfileImage)
-		c.Set("user_username", claims.UserName)
-
-		fmt.Println("User ID:", claims.ID)
-
-		// Check if the role admin
-		if claims.Role == "admin" {
-			c.Next()
-		} else if claims.Role != role {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
-			c.Abort()
-			fmt.Println("Insufficient permissions")
-			return
-		}
-
-		// Continue down the chain to handler etc
-		c.Next()
 	}
 }
 
@@ -226,7 +238,7 @@ func setupRouter(client *mongo.Client) *gin.Engine {
 	{
 		//Exhibitions
 		api.GET("/exhibitions/all", authMiddleware("admin"), exhibitionHandler.GetAllExhibitions)
-		api.GET("/exhibitions/:id", exhibitionHandler.GetExhibitionByID)
+		api.GET("/exhibitions/:id", authMiddleware(""), exhibitionHandler.GetExhibitionByID)
 		api.GET("/exhibitions", exhibitionHandler.GetExhibitionsIsPublic)
 		api.GET("/:userId/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.GetExhibitionByUserID)
 		api.POST("/exhibitions", authMiddleware("exhibitor"), exhibitionHandler.CreateExhibition)

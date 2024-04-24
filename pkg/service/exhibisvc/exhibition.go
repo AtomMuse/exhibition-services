@@ -13,7 +13,7 @@ import (
 // IExhibitionServices defines the interface for exhibition services.
 type IExhibitionServices interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
@@ -39,8 +39,8 @@ func (service ExhibitionServices) GetAllExhibitions(ctx context.Context) ([]mode
 	return service.Repository.GetAllExhibitions(ctx)
 }
 
-func (service ExhibitionServices) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
-	return service.Repository.GetExhibitionByID(ctx, exhibitionID)
+func (service ExhibitionServices) GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error) {
+	return service.Repository.GetExhibitionByID(ctx, exhibitionID, userID)
 }
 
 func (service ExhibitionServices) GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error) {

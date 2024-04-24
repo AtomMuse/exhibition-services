@@ -18,7 +18,7 @@ import (
 
 type IExhibitionRepository interface {
 	GetAllExhibitions(ctx context.Context) ([]model.ResponseExhibition, error)
-	GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error)
+	GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error)
 	GetExhibitionsIsPublic(ctx context.Context) ([]model.ResponseExhibition, error)
 	GetExhibitionByUserID(ctx context.Context, userID string) ([]*model.ResponseExhibition, error)
 	CreateExhibition(ctx context.Context, exhibition *model.RequestCreateExhibition) (*primitive.ObjectID, error)
@@ -78,12 +78,7 @@ func (r *ExhibitionRepository) GetAllExhibitions(ctx context.Context) ([]model.R
 }
 
 // GetExhibitionByID retrieves an exhibition by its ID along with its sections.
-func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibitionID string) (*model.ResponseExhibition, error) {
-
-	userID, ok := ctx.Value("user_id").(string)
-	if !ok {
-		userID = "000000000000000000000000"
-	}
+func (r *ExhibitionRepository) GetExhibitionByID(ctx *gin.Context, exhibitionID string, userID string) (*model.ResponseExhibition, error) {
 
 	// Convert exhibitionID to ObjectID
 	objID, err := primitive.ObjectIDFromHex(exhibitionID)
@@ -135,10 +130,8 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx context.Context, exhibition
 
 		// Loop through exhibition section IDs
 		var sections []model.ExhibitionSection
-		fmt.Println("ex: ", exhibition.ExhibitionSectionsID)
 
 		for _, sectionID := range exhibition.ExhibitionSectionsID {
-			fmt.Println("sectionID: ", sectionID)
 			// Convert sectionID to ObjectID
 			sectionObjID, err := primitive.ObjectIDFromHex(sectionID)
 			if err != nil {

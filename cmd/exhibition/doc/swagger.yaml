@@ -597,6 +597,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/helper.APIError'
+      security:
+      - BearerAuth: []
       summary: Get exhibition by ID
       tags:
       - Exhibitions

@@ -178,6 +178,11 @@ const docTemplate = `{
         },
         "/api/exhibitions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get exhibition data by exhibitionID",
                 "produces": [
                     "application/json"
