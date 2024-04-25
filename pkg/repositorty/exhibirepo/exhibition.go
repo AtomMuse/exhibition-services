@@ -201,9 +201,11 @@ func (r *ExhibitionRepository) GetExhibitionByID(ctx *gin.Context, exhibitionID 
 
 			rooms = append(rooms, room)
 		}
+		if rooms != nil {
+			// Assign rooms to the exhibition
+			exhibition.Room = rooms
+		}
 
-		// Assign rooms to the exhibition
-		exhibition.Room = rooms
 	}
 
 	return &exhibition, nil
